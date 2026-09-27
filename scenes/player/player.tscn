@@ -9,6 +9,9 @@ bg_color = Color(1, 0, 0, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iuonh"]
 bg_color = Color(0, 1, 0, 1)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sidxc"]
+size = Vector2(145.5, 110)
+
 [node name="Player" type="CharacterBody2D" unique_id=1952423984]
 script = ExtResource("1_dovo2")
 
@@ -26,3 +29,6 @@ offset_bottom = 48.0
 theme_override_styles/background = SubResource("StyleBoxFlat_hyk8p")
 theme_override_styles/fill = SubResource("StyleBoxFlat_iuonh")
 show_percentage = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=118908138]
+shape = SubResource("RectangleShape2D_sidxc")

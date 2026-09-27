@@ -8,6 +8,8 @@ const shotScene = preload("res://scenes/player/cannonball.tscn")
 @export var enemy: CharacterBody2D
 @export var enemy2: CharacterBody2D
 
+var damage: int = 5
+
 
 var listOfEnemies: Array[Node2D] = []
 
@@ -29,11 +31,14 @@ func spawn_enemy() -> void:
 	var instantiateEnemy = enemyScene.instantiate()
 	instantiateEnemy.global_position.y = global_position.y+300
 	listOfEnemies.append(instantiateEnemy)
+	instantiateEnemy.died.connect(_on_enemy_died)
 	
 	
 func _ready() -> void:
 	listOfEnemies.append(enemy)
+	enemy.died.connect(_on_enemy_died)
 	listOfEnemies.append(enemy2)
+	enemy2.died.connect(_on_enemy_died)
 	
 	var print_timer = Timer.new()
 	print_timer.wait_time = 1.0 
@@ -50,10 +55,16 @@ func _ready() -> void:
 	print_timer.timeout.connect(_on_print_timer_timeout)
 
 func _on_shot_timer_timeout() -> void:
-	var shot = shotScene.instantiate()
-	add_child(shot)
-	shot.global_position = player.global_position
-	shot.look_at(find_closest_enemy().global_position)
+	print(listOfEnemies)
+	if listOfEnemies.is_empty() == false:
+		var shot = shotScene.instantiate()
+		shot.damage=damage
+		add_child(shot)
+		shot.global_position = player.global_position
+		shot.look_at(find_closest_enemy().global_position)
+
+func _on_enemy_died(dead_enemy: Node2D) -> void:
+	listOfEnemies.erase(dead_enemy)
 
 func _on_print_timer_timeout() -> void:
 	# 3. Call your closest enemy function
