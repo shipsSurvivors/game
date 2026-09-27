@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://neqwcx2wxja3"]
+
+[ext_resource type="Script" uid="uid://6tughlm6om5t" path="res://scripts/GameManager.gd" id="1_5jihp"]
+[ext_resource type="Texture2D" uid="uid://r6sfapxlw6fh" path="res://Sprites/tempEnemy.jpeg" id="2_nk854"]
+[ext_resource type="PackedScene" uid="uid://c7we36sogwmlm" path="res://scenes/player/player.tscn" id="2_yygbq"]
+
+[node name="TestMain" type="Node2D" unique_id=867458312 node_paths=PackedStringArray("player")]
+script = ExtResource("1_5jihp")
+player = NodePath("Player")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=423757618]
+scale = Vector2(4.8961043, 5.4146166)
+texture = ExtResource("2_nk854")
+
+[node name="Player" parent="." unique_id=1952423984 instance=ExtResource("2_yygbq")]
