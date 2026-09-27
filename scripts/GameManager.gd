@@ -1,0 +1,67 @@
+extends Node2D
+
+const playerScene = preload("res://scenes/player/player.tscn")
+const enemyScene = preload("res://scenes/main/enemy.tscn")
+const shotScene = preload("res://scenes/player/cannonball.tscn")
+
+@export var player: CharacterBody2D
+@export var enemy: CharacterBody2D
+@export var enemy2: CharacterBody2D
+
+
+var listOfEnemies: Array[Node2D] = []
+
+func find_closest_enemy() -> Node2D:
+	if listOfEnemies.is_empty() or not is_instance_valid(player):
+		return null
+	var shortest_distance: float = INF 
+	var closest_enemy: Node2D
+	
+	for enemy in listOfEnemies:
+		if is_instance_valid(enemy):
+			var distance_sq = player.global_position.distance_squared_to(enemy.global_position)
+			if distance_sq < shortest_distance:
+				shortest_distance=distance_sq
+				closest_enemy = enemy
+	return closest_enemy
+
+func spawn_enemy() -> void:
+	var instantiateEnemy = enemyScene.instantiate()
+	instantiateEnemy.global_position.y = global_position.y+300
+	listOfEnemies.append(instantiateEnemy)
+	
+	
+func _ready() -> void:
+	listOfEnemies.append(enemy)
+	listOfEnemies.append(enemy2)
+	
+	var print_timer = Timer.new()
+	print_timer.wait_time = 1.0 
+	print_timer.autostart = true
+	add_child(print_timer)
+	
+	var shot_timer = Timer.new()
+	shot_timer.wait_time = 4.0 
+	shot_timer.autostart = true
+	add_child(shot_timer)
+	
+	
+	shot_timer.timeout.connect(_on_shot_timer_timeout)
+	print_timer.timeout.connect(_on_print_timer_timeout)
+
+func _on_shot_timer_timeout() -> void:
+	var shot = shotScene.instantiate()
+	add_child(shot)
+	shot.global_position = player.global_position
+	shot.look_at(find_closest_enemy().global_position)
+
+func _on_print_timer_timeout() -> void:
+	# 3. Call your closest enemy function
+	var closest = find_closest_enemy()
+	
+	if closest:
+		# .global_position returns a Vector2 (X, Y) coordinate
+		print("Closest Enemy coordinates: ", closest.global_position)
+	else:
+		print("No active enemies found on screen.")
+	
