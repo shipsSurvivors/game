@@ -6,6 +6,8 @@ const shotScene = preload("res://scenes/player/cannonball.tscn")
 
 @export var player: CharacterBody2D
 @export var enemy: CharacterBody2D
+@export var enemy2: CharacterBody2D
+
 
 var listOfEnemies: Array[Node2D] = []
 
@@ -31,6 +33,7 @@ func spawn_enemy() -> void:
 	
 func _ready() -> void:
 	listOfEnemies.append(enemy)
+	listOfEnemies.append(enemy2)
 	
 	var print_timer = Timer.new()
 	print_timer.wait_time = 1.0 
@@ -38,18 +41,19 @@ func _ready() -> void:
 	add_child(print_timer)
 	
 	var shot_timer = Timer.new()
-	shot_timer.wait_time = 1.0 
+	shot_timer.wait_time = 4.0 
 	shot_timer.autostart = true
 	add_child(shot_timer)
 	
 	
-	print_timer.timeout.connect(_on_shot_timer_timeout)
+	shot_timer.timeout.connect(_on_shot_timer_timeout)
 	print_timer.timeout.connect(_on_print_timer_timeout)
 
 func _on_shot_timer_timeout() -> void:
 	var shot = shotScene.instantiate()
-	print(shot.global_position)
+	add_child(shot)
 	shot.global_position = player.global_position
+	shot.look_at(find_closest_enemy().global_position)
 
 func _on_print_timer_timeout() -> void:
 	# 3. Call your closest enemy function
