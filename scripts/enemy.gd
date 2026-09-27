@@ -8,7 +8,6 @@ var target = position
 
 func _input(event):
 	# Use is_action_pressed to only accept single taps as input instead of mouse drags.
-	print(event)
 	if event.is_action_pressed("click"):
 		target = get_global_mouse_position()
 

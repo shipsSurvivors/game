@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://ddqadnd343tkr"]
+
+[ext_resource type="Texture2D" uid="uid://btpvvvhmb2efj" path="res://Sprites/icon.svg" id="1_22dbx"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sidxc"]
+
+[node name="TempEnemy" type="Area2D" unique_id=740135786]
+position = Vector2(919, 374)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1247709541]
+texture = ExtResource("1_22dbx")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1481738596]
+shape = SubResource("RectangleShape2D_sidxc")
