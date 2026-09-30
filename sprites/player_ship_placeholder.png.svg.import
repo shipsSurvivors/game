@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bptplqss88omx"
-path="res://.godot/imported/481-4810062_pirates-ship-clip-art-png-download-pirate-ship.png-495720d32a09951d4b196766a3a693a0.ctex"
+uid="uid://cl54efwi4pt8k"
+path="res://.godot/imported/player_ship_placeholder.png.svg-cbd8621ab61ee7e1a9d822c6bdd7c85d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Sprites/481-4810062_pirates-ship-clip-art-png-download-pirate-ship.png"
-dest_files=["res://.godot/imported/481-4810062_pirates-ship-clip-art-png-download-pirate-ship.png-495720d32a09951d4b196766a3a693a0.ctex"]
+source_file="res://sprites/player_ship_placeholder.png.svg"
+dest_files=["res://.godot/imported/player_ship_placeholder.png.svg-cbd8621ab61ee7e1a9d822c6bdd7c85d.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

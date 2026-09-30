@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c7we36sogwmlm"]
 
 [ext_resource type="Script" uid="uid://dax2fg0c2cssf" path="res://scripts/player.gd" id="1_dovo2"]
-[ext_resource type="Texture2D" uid="uid://cl54efwi4pt8k" path="res://Sprites/polygonboat.svg" id="2_dovo2"]
+[ext_resource type="Texture2D" uid="uid://cl54efwi4pt8k" path="res://sprites/player_ship_placeholder.png.svg" id="2_dovo2"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hyk8p"]
 bg_color = Color(1, 0, 0, 1)

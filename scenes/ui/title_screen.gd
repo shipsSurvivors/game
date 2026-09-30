@@ -1,7 +1,7 @@
 extends Control
 
 # Load the gameplay scene so the Start button can open it.
-const GAME_SCENE := preload("res://scenes/player/Player Attack.tscn")
+const GAME_SCENE := preload("res://scenes/player/gameplay.tscn")
 
 # Find the button after this scene's nodes are ready.
 # These names must match the nodes in your Scene tree.
