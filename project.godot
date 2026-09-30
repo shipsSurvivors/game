@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="survivorGame"
-run/main_scene="uid://bgstqglsbqg1p"
+run/main_scene="uid://bqckbdd2q2psm"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -70,3 +70,4 @@ die={
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+environment/defaults/default_clear_color=Color(0.03529412, 0.16862746, 0.23529412, 1)

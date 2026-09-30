@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c7we36sogwmlm"]
 
 [ext_resource type="Script" uid="uid://dax2fg0c2cssf" path="res://scripts/player.gd" id="1_dovo2"]
-[ext_resource type="Texture2D" uid="uid://bk6lmfgt87by2" path="res://481-4810062_pirates-ship-clip-art-png-download-pirate-ship.png" id="2_dovo2"]
+[ext_resource type="Texture2D" uid="uid://cl54efwi4pt8k" path="res://Sprites/polygonboat.svg" id="2_dovo2"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hyk8p"]
 bg_color = Color(1, 0, 0, 1)
@@ -16,7 +16,6 @@ size = Vector2(145.5, 110)
 script = ExtResource("1_dovo2")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=543000275]
-scale = Vector2(0.25, 0.25)
 texture = ExtResource("2_dovo2")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1088465187]

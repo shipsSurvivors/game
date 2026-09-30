@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://bqckbdd2q2psm"]
 
+[ext_resource type="Script" uid="uid://qvv5akdi5msv" path="res://scenes/ui/title_screen.gd" id="1_eb34j"]
+
 [node name="TitleScreen" type="Control" unique_id=343594451]
 layout_mode = 3
 anchors_preset = 15
@@ -7,28 +9,53 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_eb34j")
 
 [node name="Background (ColorRect)" type="ColorRect" parent="." unique_id=670794878]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.03529412, 0.16862746, 0.23529412, 1)
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=404385896]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=1731443448]
+custom_minimum_size = Vector2(560, 0)
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Title" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1102061792]
 layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "SHIPS SURVIVORS"
+horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1190138354]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Game Development Club • Game Jam Demo"
+horizontal_alignment = 1
 
 [node name="Instructions" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1467618696]
 layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "WASD or arrow keys to sail.
+Cannons fire automatically. Keep moving!"
+horizontal_alignment = 1
 
 [node name="StartButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1116287291]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.95686275, 0.79607844, 0.47058824, 1)
+theme_override_font_sizes/font_size = 24
+text = "SET SAIL"

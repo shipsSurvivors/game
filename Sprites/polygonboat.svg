@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="80" viewBox="0 0 128 80">
+  <!-- Right-facing hull: compatible with Sprite2D.flip_h. -->
+  <path d="M17 17 L82 13 Q108 21 121 40 Q108 59 82 67 L17 63 L7 40 Z" fill="#163746" stroke="#081e29" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M22 22 L81 18 Q103 25 115 40 Q103 55 81 62 L22 58 L14 40 Z" fill="#a96a3b" stroke="#f4cb78" stroke-width="3" stroke-linejoin="round"/>
+  <!-- Wooden deck. -->
+  <path d="M27 28 L81 25 L102 40 L81 55 L27 52 L22 40 Z" fill="#d39a57"/>
+  <path d="M27 34 H88 M25 40 H100 M27 46 H88" fill="none" stroke="#aa733e" stroke-width="2"/>
+  <!-- Side cannons. -->
+  <path d="M48 13 V23 M48 57 V67 M73 12 V22 M73 58 V68" fill="none" stroke="#081e29" stroke-width="9"/>
+  <path d="M48 13 V23 M48 57 V67 M73 12 V22 M73 58 V68" fill="none" stroke="#536b72" stroke-width="5"/>
+  <!-- Sail and mast, drawn across the hull. -->
+  <path d="M61 17 Q89 25 91 40 Q89 55 61 63 Q69 40 61 17 Z" fill="#fff0ce" stroke="#163746" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M61 15 V65" stroke="#533a2b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M62 40 H87" stroke="#d8c393" stroke-width="1.5"/>
+  <!-- Stern marker identifies the player's ship. -->
+  <rect x="25" y="32" width="14" height="16" rx="3" fill="#163746"/>
+  <circle cx="32" cy="40" r="4" fill="#66e0c2"/>
+</svg>
