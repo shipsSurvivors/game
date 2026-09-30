@@ -17,6 +17,10 @@ var current_health: int
 
 # When ready
 func _ready():
+	add_to_group("player") # Other scripts can help search for "player"
+	# "player" = our ship
+	
+	
 	# Start player at full health
 	current_health = max_health
 	
