@@ -1,6 +1,8 @@
 extends Area2D
 
-@export var velocity: int = 5
+# Travel speed in pixels per second.
+@export var velocity: float = 600.0
+
 @export var damage: int = 5
 
 func _ready() -> void:
@@ -22,5 +24,7 @@ func _on_body_entered(body: Node2D) -> void:
 func _on_timer_timeout() -> void:
 	queue_free()
 
-func _process(delta: float) -> void:
-	global_position += transform.x * velocity
+func _physics_process(delta: float) -> void:
+	# Multiplying by delta keeps travel speed consistent
+	# across computers running at different frame rates.
+	global_position += transform.x * velocity * delta

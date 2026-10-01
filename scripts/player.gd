@@ -3,8 +3,8 @@ extends CharacterBody2D
 # Movement speed of the player in pixels per second.
 @export var speed: float = 300.0
 
-# Gets the Sprite2D child so we can flip the artwork left/right.
-@onready var sprite: Sprite2D = $Sprite2D
+# Control the animated ship.
+@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 # Reference to the health bar under player sprite
 @onready var health_bar: ProgressBar = $HealthBar
@@ -27,6 +27,9 @@ func _ready():
 	# Configure health bar
 	health_bar.max_value = max_health
 	health_bar.value = current_health
+	
+	# Start the looping sailing animation.
+	sprite.play("sail")
 
 func take_damage(amount: int):
 	# Reduce current health by enemy damage amount
@@ -52,13 +55,11 @@ func _physics_process(_delta):
 	# Converts the input direction into the player's movement velocity.
 	velocity = direction * speed
 
-	# If the player is moving left, flip the sprite horizontally.
+	# Our ship artwork naturally faces left.
 	if direction.x < 0:
-		sprite.flip_h = true
-
-	# If the player is moving right, return the sprite to its normal direction.
-	elif direction.x > 0:
 		sprite.flip_h = false
+	elif direction.x > 0:
+		sprite.flip_h = true
 
 	# Moves the CharacterBody2D using the velocity we calculated above.
 	move_and_slide()

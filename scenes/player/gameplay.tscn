@@ -3,12 +3,31 @@
 [ext_resource type="Script" uid="uid://cwmmiijjphw2x" path="res://scripts/game_manager.gd" id="1_8hwep"]
 [ext_resource type="PackedScene" uid="uid://c7we36sogwmlm" path="res://scenes/player/player.tscn" id="2_sdyvb"]
 [ext_resource type="PackedScene" uid="uid://cmfoxiva7r0km" path="res://scenes/main/enemy.tscn" id="3_6cmtr"]
+[ext_resource type="Script" uid="uid://cayxk6diwr63k" path="res://scripts/ocean_background.gd" id="3_d2sv5"]
+[ext_resource type="Texture2D" uid="uid://d2dn2we5iyjrw" path="res://sprites/ocean_tile.png" id="4_sdyvb"]
+[ext_resource type="Texture2D" uid="uid://c74fdeprqeubo" path="res://sprites/lvl_1_bar.png" id="6_d2sv5"]
 
-[node name="PlayerAttack" type="Node2D" unique_id=1973005540 node_paths=PackedStringArray("player", "enemy", "enemy2")]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6cmtr"]
+bg_color = Color(0.18212852, 0.26263383, 0.65469795, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d2sv5"]
+bg_color = Color(0.355377, 0.7275998, 0.9518835, 1)
+
+[node name="Gameplay" type="Node2D" unique_id=1973005540 node_paths=PackedStringArray("player", "enemy", "enemy2")]
 script = ExtResource("1_8hwep")
 player = NodePath("Player")
 enemy = NodePath("Enemy")
 enemy2 = NodePath("Enemy2")
+
+[node name="OceanBackground" type="Sprite2D" parent="." unique_id=1977119285]
+self_modulate = Color(0.25882354, 0.3764706, 0.47058824, 1)
+texture_filter = 1
+texture_repeat = 2
+scale = Vector2(2, 2)
+texture = ExtResource("4_sdyvb")
+region_enabled = true
+region_rect = Rect2(0, 0, 8192, 8192)
+script = ExtResource("3_d2sv5")
 
 [node name="Player" parent="." unique_id=1952423984 instance=ExtResource("2_sdyvb")]
 position = Vector2(196, 351)
@@ -18,3 +37,43 @@ position = Vector2(635, 325)
 
 [node name="Enemy2" parent="." unique_id=1487462916 instance=ExtResource("3_6cmtr")]
 position = Vector2(-618, 371)
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=460632661]
+
+[node name="XPDisplay" type="Control" parent="HUD" unique_id=1799737621]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 60.0
+offset_bottom = 60.0
+
+[node name="XPBar" type="ProgressBar" parent="HUD/XPDisplay" unique_id=2141643551]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 15.0
+offset_right = 360.0
+offset_bottom = 60.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_6cmtr")
+theme_override_styles/fill = SubResource("StyleBoxFlat_d2sv5")
+show_percentage = false
+
+[node name="Frame" type="TextureRect" parent="HUD/XPDisplay" unique_id=538807456]
+texture_filter = 1
+layout_mode = 0
+offset_right = 375.0
+offset_bottom = 75.0
+mouse_filter = 2
+texture = ExtResource("6_d2sv5")
+expand_mode = 1
+
+[node name="XPText" type="Label" parent="HUD/XPDisplay" unique_id=751421709]
+layout_mode = 0
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 3.0
+offset_transform_position_ratio = Vector2(96, 78)
+theme_override_font_sizes/font_size = 18
+text = "Level 1 • XP 0 / 2"

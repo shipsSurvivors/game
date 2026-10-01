@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://c88l5c46n8g3a"]
+
+[ext_resource type="AudioStream" uid="uid://8cf2o4jby40g" path="res://sprites/Seafare Voyagers.wav" id="1_jxdhu"]
+
+[node name="MusicPlayer" type="AudioStreamPlayer2D" unique_id=1514671107]
+stream = ExtResource("1_jxdhu")
+volume_db = -12.0
+autoplay = true

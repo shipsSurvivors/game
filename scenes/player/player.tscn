@@ -1,7 +1,26 @@
 [gd_scene format=3 uid="uid://c7we36sogwmlm"]
 
 [ext_resource type="Script" uid="uid://dax2fg0c2cssf" path="res://scripts/player.gd" id="1_dovo2"]
-[ext_resource type="Texture2D" uid="uid://cl54efwi4pt8k" path="res://sprites/player_ship_placeholder.png.svg" id="2_dovo2"]
+[ext_resource type="Texture2D" uid="uid://cupvswsqm6cv4" path="res://sprites/ship_1.png" id="2_dovo2"]
+[ext_resource type="Texture2D" uid="uid://cvdg3j8rmt7fx" path="res://sprites/ship/ship_01.png" id="3_lvxji"]
+[ext_resource type="Texture2D" uid="uid://hx5myjryqu78" path="res://sprites/ship/ship_02.png" id="4_p47bc"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sidxc"]
+size = Vector2(145.5, 110)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ly3rf"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_lvxji")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_p47bc")
+}],
+"loop": 1,
+"name": &"sail",
+"speed": 2.86
+}]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hyk8p"]
 bg_color = Color(1, 0, 0, 1)
@@ -9,25 +28,31 @@ bg_color = Color(1, 0, 0, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iuonh"]
 bg_color = Color(0, 1, 0, 1)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_sidxc"]
-size = Vector2(145.5, 110)
-
 [node name="Player" type="CharacterBody2D" unique_id=1952423984]
 script = ExtResource("1_dovo2")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=543000275]
+visible = false
+scale = Vector2(0.6, 0.6)
 texture = ExtResource("2_dovo2")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1088465187]
 
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=118908138]
+shape = SubResource("RectangleShape2D_sidxc")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1318685355]
+texture_filter = 1
+scale = Vector2(0.6, 0.6)
+sprite_frames = SubResource("SpriteFrames_ly3rf")
+animation = &"sail"
+frame_progress = 0.5594702
+
 [node name="HealthBar" type="ProgressBar" parent="." unique_id=461430142]
 offset_left = -30.0
-offset_top = 40.0
+offset_top = 80.0
 offset_right = 30.0
-offset_bottom = 48.0
+offset_bottom = 88.0
 theme_override_styles/background = SubResource("StyleBoxFlat_hyk8p")
 theme_override_styles/fill = SubResource("StyleBoxFlat_iuonh")
 show_percentage = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=118908138]
-shape = SubResource("RectangleShape2D_sidxc")
