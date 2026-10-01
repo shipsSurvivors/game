@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ctq454oa53iu5"
-path="res://.godot/imported/upgrades.png-883a99ceb055d2eb710bb58a6eed8718.ctex"
+path="res://.godot/imported/upgrades.png-6dbdc8d7071a1391378e9f256b80645e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/upgrades.png"
-dest_files=["res://.godot/imported/upgrades.png-883a99ceb055d2eb710bb58a6eed8718.ctex"]
+source_file="res://Sprites/upgrades.png"
+dest_files=["res://.godot/imported/upgrades.png-6dbdc8d7071a1391378e9f256b80645e.ctex"]
 
 [params]
 

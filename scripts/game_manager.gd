@@ -11,18 +11,29 @@ const shotScene = preload("res://scenes/player/cannonball.tscn")
 # Crab with 20 health dies in 4 hits
 var damage: int = 5
 
-
 var listOfEnemies: Array[Node2D] = []
 
-# Small starting requirement so we can test with two crabs.
+# Level and XP
 var level: int = 1
 var xp: int = 0
 var xp_needed: int = 2
+
+# Time before a killed enemy respawns
+@export var enemy_respawn_time: float = 3.0
+
+# Enemy spawn settings
+# Enemies will spawn somewhere within this radius around the player.
+@export var enemy_spawn_radius: float = 500.0
+
+# Enemies will not spawn closer than this distance to the player.
+@export var enemy_min_spawn_distance: float = 150.0
+
 
 # References to the fixed-screen HUD.
 @onready var xp_bar: ProgressBar = $HUD/XPDisplay/XPBar
 @onready var xp_frame: TextureRect = $HUD/XPDisplay/Frame
 @onready var xp_text: Label = $HUD/XPDisplay/XPText
+
 
 # Your artwork for the first three levels.
 const LEVEL_FRAMES = [
@@ -31,51 +42,155 @@ const LEVEL_FRAMES = [
 	preload("res://sprites/lvl_3_bar.png")
 ]
 
+
 func find_closest_enemy() -> Node2D:
+	# Remove invalid enemies from the list first.
+	listOfEnemies = listOfEnemies.filter(
+		func(enemy_node):
+			return is_instance_valid(enemy_node)
+	)
+
 	if listOfEnemies.is_empty() or not is_instance_valid(player):
 		return null
-	var shortest_distance: float = INF 
+
+	var shortest_distance: float = INF
 	var closest_enemy: Node2D
-	
-	for enemy in listOfEnemies:
-		if is_instance_valid(enemy):
-			var distance_sq = player.global_position.distance_squared_to(enemy.global_position)
+
+	for enemy_node in listOfEnemies:
+		if is_instance_valid(enemy_node):
+			var distance_sq = player.global_position.distance_squared_to(
+				enemy_node.global_position
+			)
+
 			if distance_sq < shortest_distance:
-				shortest_distance=distance_sq
-				closest_enemy = enemy
+				shortest_distance = distance_sq
+				closest_enemy = enemy_node
+
 	return closest_enemy
 
+
+# Determines how many enemies should exist at each level.
+#
+# Level 1 = 2 enemies
+# Level 2 = 3 enemies
+# Level 3 = 4 enemies
+# Level 4 = 5 enemies
+# etc.
+func get_enemy_count_for_level() -> int:
+	return level + 1
+
+
+# Makes sure the correct number of enemies exist.
+func scale_enemies_to_level() -> void:
+	var target_enemy_count := get_enemy_count_for_level()
+
+	# Clean out invalid references first.
+	listOfEnemies = listOfEnemies.filter(
+		func(enemy_node):
+			return is_instance_valid(enemy_node)
+	)
+
+	var current_enemy_count := listOfEnemies.size()
+
+	print(
+		"Enemy scaling - Level: ",
+		level,
+		" | Current enemies: ",
+		current_enemy_count,
+		" | Target enemies: ",
+		target_enemy_count
+	)
+
+	# Spawn only the enemies we are missing.
+	while listOfEnemies.size() < target_enemy_count:
+		spawn_enemy()
+
+
 func spawn_enemy() -> void:
-	var instantiateEnemy = enemyScene.instantiate()
-	instantiateEnemy.global_position.y = global_position.y+300
+	var instantiateEnemy = enemyScene.instantiate() as Node2D
+
+	if instantiateEnemy == null:
+		print("ERROR: Enemy scene could not be instantiated.")
+		return
+
+	# Make sure the player exists before using their position.
+	if not is_instance_valid(player):
+		print("ERROR: Player is not valid, cannot spawn enemy.")
+		return
+
+	# ---------------------------------------------------------
+	# RANDOM SPAWN AROUND PLAYER
+	# ---------------------------------------------------------
+	
+	# Pick a random angle around the player.
+	var angle := randf_range(0.0, TAU)
+	
+	# Pick a random distance between the minimum
+	# and maximum spawn radius.
+	var distance := randf_range(
+		enemy_min_spawn_distance,
+		enemy_spawn_radius
+	)
+	
+	# Convert the angle and distance into a Vector2.
+	var spawn_offset := Vector2.from_angle(angle) * distance
+	
+	# Spawn relative to the player's current position.
+	instantiateEnemy.global_position = player.global_position + spawn_offset
+
+
+	# Add the enemy to the actual game scene.
+	get_tree().current_scene.add_child(instantiateEnemy)
+
+	# Add the enemy to our enemy list.
 	listOfEnemies.append(instantiateEnemy)
+
+	# Listen for the enemy's death.
 	instantiateEnemy.died.connect(_on_enemy_died)
-	
-	
+
+	print(
+		"Spawned enemy at distance ",
+		distance,
+		" from player. Total enemies: ",
+		listOfEnemies.size()
+	)
+
+
 func _ready() -> void:
-	listOfEnemies.append(enemy)
-	enemy.died.connect(_on_enemy_died)
-	listOfEnemies.append(enemy2)
-	enemy2.died.connect(_on_enemy_died)
-	
+	# Randomize positions used by randf_range().
+	randomize()
+
+	# Add the two enemies that already exist in the scene.
+	if is_instance_valid(enemy):
+		listOfEnemies.append(enemy)
+		enemy.died.connect(_on_enemy_died)
+
+	if is_instance_valid(enemy2):
+		listOfEnemies.append(enemy2)
+		enemy2.died.connect(_on_enemy_died)
+
+	# Make sure Level 1 has the correct number of enemies.
+	scale_enemies_to_level()
+
+	# Timer used for printing enemy information.
 	var print_timer = Timer.new()
-	print_timer.wait_time = 1.0 
+	print_timer.wait_time = 1.0
 	print_timer.autostart = true
 	add_child(print_timer)
-	
+
+	# Timer used for automatically firing shots.
 	var shot_timer = Timer.new()
-	# Fire often enough to keep combat active.
 	shot_timer.wait_time = 1.5
 	shot_timer.autostart = true
 	add_child(shot_timer)
-	
-	
+
 	shot_timer.timeout.connect(_on_shot_timer_timeout)
 	print_timer.timeout.connect(_on_print_timer_timeout)
-	
-		# Show the starting level and empty XP bar.
+
+	# Show the starting level and empty XP bar.
 	update_xp_display()
-	
+
+
 func _on_shot_timer_timeout() -> void:
 	if not is_instance_valid(player):
 		return
@@ -93,6 +208,7 @@ func _on_shot_timer_timeout() -> void:
 	shot.global_position = player.global_position
 	shot.look_at(target.global_position)
 
+
 func add_xp(amount: int) -> void:
 	xp += amount
 
@@ -101,10 +217,13 @@ func add_xp(amount: int) -> void:
 		xp -= xp_needed
 		level += 1
 
+		print("Reached level ", level)
+
+		# Increase the number of enemies for the new level.
+		scale_enemies_to_level()
+
 		# Each new level takes two more enemy defeats.
 		xp_needed += 2
-
-		print("Reached level ", level)
 
 	update_xp_display()
 
@@ -123,8 +242,8 @@ func update_xp_display() -> void:
 		xp_frame.show()
 	else:
 		# Beyond level 3, keep the working bar and text.
-		# Hide the artwork so it doesn't show the wrong level.
 		xp_frame.hide()
+
 
 func _on_enemy_died(dead_enemy: Node2D) -> void:
 	# Only reward an enemy that is still registered.
@@ -133,16 +252,20 @@ func _on_enemy_died(dead_enemy: Node2D) -> void:
 
 	listOfEnemies.erase(dead_enemy)
 
-	# Award XP directly for now; pickups can come later.
+	# Award XP.
 	add_xp(1)
 
+	# Wait before spawning the replacement enemy.
+	await get_tree().create_timer(enemy_respawn_time).timeout
+
+	# Spawn the replacement.
+	spawn_enemy()
+
+
 func _on_print_timer_timeout() -> void:
-	# 3. Call your closest enemy function
 	var closest = find_closest_enemy()
-	
+
 	if closest:
-		# .global_position returns a Vector2 (X, Y) coordinate
 		print("Closest Enemy coordinates: ", closest.global_position)
 	else:
 		print("No active enemies found on screen.")
-	

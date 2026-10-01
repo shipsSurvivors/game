@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d2dn2we5iyjrw"
-path="res://.godot/imported/ocean_tile.png-e8efe0a4867fa38b9d8913c9b0904ef1.ctex"
+path="res://.godot/imported/ocean_tile.png-7aa9c8159e4a88ecdf73f9a0446c659f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/ocean_tile.png"
-dest_files=["res://.godot/imported/ocean_tile.png-e8efe0a4867fa38b9d8913c9b0904ef1.ctex"]
+source_file="res://Sprites/ocean_tile.png"
+dest_files=["res://.godot/imported/ocean_tile.png-7aa9c8159e4a88ecdf73f9a0446c659f.ctex"]
 
 [params]
 
