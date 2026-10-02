@@ -39,6 +39,25 @@ var game_over_layer: CanvasLayer
 @onready var xp_frame: TextureRect = $HUD/XPDisplay/Frame
 @onready var xp_text: Label = $HUD/XPDisplay/XPText
 
+# Special enemies introduced during the voyage.
+const CRAB_BOSS_SCENE = preload(
+	"res://scenes/main/crab_miniboss.tscn"
+)
+const SEAGULL_BOSS_SCENE = preload(
+	"res://scenes/main/seagull_miniboss.tscn"
+)
+
+# Regular ships spawn independently of player level.
+var enemy_spawn_clock: float = 3.0
+@export var max_regular_enemies: int = 60
+
+# First arrival times.
+var next_crab_time: float = 60.0
+var next_seagull_time: float = 120.0
+
+# Repeat intervals shrink after each arrival.
+var crab_spawn_interval: float = 90.0
+var seagull_spawn_interval: float = 120.0
 
 const LEVEL_FRAMES = [
 	preload("res://sprites/lvl_1_bar.png"),
@@ -65,8 +84,6 @@ func _ready() -> void:
 	if is_instance_valid(enemy2):
 		listOfEnemies.append(enemy2)
 		enemy2.died.connect(_on_enemy_died)
-
-	scale_enemies_to_level()
 
 	# Timer used for printing enemy information.
 	var print_timer = Timer.new()
@@ -137,41 +154,6 @@ func find_closest_enemy() -> Node2D:
 				closest_enemy = enemy_node
 
 	return closest_enemy
-
-
-func get_enemy_count_for_level() -> int:
-	return level + 1
-
-
-func scale_enemies_to_level() -> void:
-	# Stop instead of repeatedly trying to spawn without a player.
-	if not is_instance_valid(player):
-		push_error("Assign Player on the Gameplay node in the Inspector.")
-		return
-		
-	var target_enemy_count := get_enemy_count_for_level()
-
-	# Clean out invalid references first.
-	listOfEnemies = listOfEnemies.filter(
-		func(enemy_node):
-			return is_instance_valid(enemy_node)
-	)
-
-	var current_enemy_count := listOfEnemies.size()
-
-	print(
-		"Enemy scaling - Level: ",
-		level,
-		" | Current enemies: ",
-		current_enemy_count,
-		" | Target enemies: ",
-		target_enemy_count
-	)
-
-	# Spawn only the enemies we are missing.
-	while listOfEnemies.size() < target_enemy_count:
-		spawn_enemy()
-
 
 func spawn_enemy() -> void:
 	var instantiateEnemy = enemyScene.instantiate() as Node2D
@@ -247,9 +229,6 @@ func add_xp(amount: int) -> void:
 
 		print("Reached level ", level)
 
-		# Increase the number of enemies for the new level.
-		scale_enemies_to_level()
-
 		# Each new level takes two more enemy defeats.
 		xp_needed += 2
 
@@ -271,10 +250,8 @@ func update_xp_display() -> void:
 	else:
 		xp_frame.hide()
 
-
 func _on_enemy_died(dead_enemy: Node2D) -> void:
-	# Do not process enemy deaths while paused or after Game Over.
-	if game_over or get_tree().paused:
+	if game_over:
 		return
 
 	if not listOfEnemies.has(dead_enemy):
@@ -282,17 +259,63 @@ func _on_enemy_died(dead_enemy: Node2D) -> void:
 
 	listOfEnemies.erase(dead_enemy)
 
-	# Award XP.
-	add_xp(1)
+	# Bosses award more XP than ordinary ships.
+	if dead_enemy.is_in_group("minibosses"):
+		add_xp(5)
+	else:
+		add_xp(1)
 
-	# Wait before spawning the replacement enemy.
-	await get_tree().create_timer(enemy_respawn_time).timeout
+	# No replacement here.
+	# The timed spawner controls all future arrivals.
 
-	# Do not respawn enemies while paused or after Game Over.
-	if game_over or get_tree().paused:
+func spawn_miniboss(scene: PackedScene, boss_name: String) -> void:
+	if game_over or not is_instance_valid(player):
 		return
 
-	spawn_enemy()
+	var boss = scene.instantiate()
+	boss.name = boss_name
+	# Allows the spawner to distinguish bosses from regular ships.
+	boss.add_to_group("minibosses")
+
+	# Pick a position just outside the current camera view.
+	var screen_size := get_viewport_rect().size
+	var margin := 160.0
+	var screen_position := Vector2.ZERO
+
+	match randi_range(0, 3):
+		0:
+			screen_position = Vector2(
+				-margin, randf_range(0.0, screen_size.y)
+			)
+		1:
+			screen_position = Vector2(
+				screen_size.x + margin,
+				randf_range(0.0, screen_size.y)
+			)
+		2:
+			screen_position = Vector2(
+				randf_range(0.0, screen_size.x), -margin
+			)
+		3:
+			screen_position = Vector2(
+				randf_range(0.0, screen_size.x),
+				screen_size.y + margin
+			)
+
+	# Convert the screen position into the gameplay world's coordinates.
+	var world_position := (
+		get_viewport().get_canvas_transform().affine_inverse()
+		* screen_position
+	)
+
+	boss.position = to_local(world_position)
+
+	# Include the boss in cannon targeting, pausing, and death handling.
+	listOfEnemies.append(boss)
+	boss.died.connect(_on_enemy_died)
+	add_child(boss)
+
+	print("MINIBOSS ARRIVED: ", boss_name)
 
 func _process(delta: float) -> void:
 	# This manager runs while paused, so explicitly stop the clock.
@@ -300,7 +323,47 @@ func _process(delta: float) -> void:
 		return
 
 	survival_time += delta
+	# Spawn regular ships more frequently as the voyage continues.
+	enemy_spawn_clock -= delta
 
+	if enemy_spawn_clock <= 0.0:
+		# Shorten the interval by 0.4 seconds per minute.
+		# Never spawn faster than one ship every 0.75 seconds.
+		var spawn_interval := maxf(
+			0.75,
+			3.0 - (survival_time / 60.0) * 0.4
+		)
+
+		enemy_spawn_clock = spawn_interval
+
+		# Count regular ships separately from minibosses.
+		var regular_count := 0
+
+		for enemy_node in listOfEnemies:
+			if is_instance_valid(enemy_node):
+				if not enemy_node.is_in_group("minibosses"):
+					regular_count += 1
+
+		if regular_count < max_regular_enemies:
+			spawn_enemy()
+
+	# Repeated crab arrivals, with progressively shorter gaps.
+	if survival_time >= next_crab_time:
+		spawn_miniboss(CRAB_BOSS_SCENE, "CrabMiniboss")
+
+		next_crab_time = survival_time + crab_spawn_interval
+		crab_spawn_interval = maxf(
+			45.0, crab_spawn_interval - 15.0
+		)
+
+	# Seagulls start later and repeat less frequently.
+	if survival_time >= next_seagull_time:
+		spawn_miniboss(SEAGULL_BOSS_SCENE, "SeagullMiniboss")
+
+		next_seagull_time = survival_time + seagull_spawn_interval
+		seagull_spawn_interval = maxf(
+			60.0, seagull_spawn_interval - 15.0
+		)
 	# Convert total seconds into minutes and remaining seconds.
 	var total_seconds := int(survival_time)
 	var minutes := int(total_seconds / 60.0)

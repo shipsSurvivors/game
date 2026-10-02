@@ -1,0 +1,62 @@
+[gd_scene format=3 uid="uid://b5xfh2n08gwta"]
+
+[ext_resource type="Script" uid="uid://bmj7hhgyosvk0" path="res://scripts/crab_miniboss.gd" id="1_m8xvd"]
+[ext_resource type="Texture2D" uid="uid://datrqvgigbvim" path="res://sprites/crab/crab_01.png" id="2_tkdqv"]
+[ext_resource type="Texture2D" uid="uid://dyj8m1lbjg23l" path="res://sprites/crab/crab_02.png" id="3_x26mk"]
+[ext_resource type="Texture2D" uid="uid://c8vu4x78ol3jq" path="res://sprites/crab/crab_03.png" id="4_rgg4x"]
+[ext_resource type="Texture2D" uid="uid://cnxmw5rjgckkf" path="res://sprites/crab/crab_04.png" id="5_bo3y8"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jmf37"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_tkdqv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_x26mk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_rgg4x")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_bo3y8")
+}],
+"loop": 1,
+"name": &"scuttle",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sidxc"]
+size = Vector2(18, 12.714285)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jmf37"]
+bg_color = Color(1, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ly3rf"]
+bg_color = Color(0, 1, 0, 1)
+
+[node name="Enemy" type="CharacterBody2D" unique_id=801274681]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_m8xvd")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1926919551]
+sprite_frames = SubResource("SpriteFrames_jmf37")
+animation = &"scuttle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2055581160]
+position = Vector2(6.000002, 48.499996)
+scale = Vector2(7, 7)
+shape = SubResource("RectangleShape2D_sidxc")
+
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=446926526]
+offset_left = -30.0
+offset_top = 60.0
+offset_right = 30.0
+offset_bottom = 68.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_jmf37")
+theme_override_styles/fill = SubResource("StyleBoxFlat_ly3rf")
+show_percentage = false
+
+[connection signal="input_event" from="." to="." method="_on_input_event"]
