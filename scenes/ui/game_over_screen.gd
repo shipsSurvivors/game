@@ -27,9 +27,4 @@ func _on_retry_pressed() -> void:
 
 
 func _on_title_pressed() -> void:
-	# Make absolutely sure the game is unpaused
-	# before changing back to the title screen.
-	get_tree().paused = false
-
-	# Return directly to the title screen.
-	get_tree().change_scene_to_packed(TITLE_SCENE)
+	title_pressed.emit()

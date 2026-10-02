@@ -37,8 +37,9 @@ var xp_needed: int = 2
 # Keeps track of whether the player has died.
 var game_over: bool = false
 
-# Reference to the Game Over UI.
+# References to the Game Over UI.
 var game_over_screen: Control
+var game_over_layer: CanvasLayer
 
 
 # References to the fixed-screen HUD.
@@ -129,10 +130,6 @@ func spawn_enemy() -> void:
 	if not is_instance_valid(player):
 		print("ERROR: Player is not valid, cannot spawn enemy.")
 		return
-
-	# ---------------------------------------------------------
-	# RANDOM SPAWN AROUND PLAYER
-	# ---------------------------------------------------------
 
 	# Pick a random angle around the player.
 	var angle := randf_range(0.0, TAU)
@@ -301,20 +298,43 @@ func _on_player_died() -> void:
 	# Stop all gameplay.
 	get_tree().paused = true
 
-	# Create the Game Over UI.
-	game_over_screen = GAME_OVER_SCENE.instantiate()
+	# Create a UI layer above the gameplay.
+	game_over_layer = CanvasLayer.new()
+	game_over_layer.name = "GameOverLayer"
+	game_over_layer.layer = 100
+	game_over_layer.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	get_tree().current_scene.add_child(game_over_layer)
 
-	# Allow the Game Over UI to work while the game is paused.
+	# Create the Game Over screen.
+	game_over_screen = GAME_OVER_SCENE.instantiate() as Control
 	game_over_screen.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	game_over_layer.add_child(game_over_screen)
 
-	get_tree().current_scene.add_child(game_over_screen)
+	# Make the Game Over screen fill the viewport.
+	game_over_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	# Make the CenterContainer fill the viewport.
+	var center_container := game_over_screen.get_node("CenterContainer") as Control
+	center_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	# Connect the Game Over buttons.
 	game_over_screen.retry_pressed.connect(_on_retry_pressed)
 	game_over_screen.title_pressed.connect(_on_title_pressed)
 
 
+func _close_game_over_screen() -> void:
+	# Remove the Game Over UI layer.
+	if is_instance_valid(game_over_layer):
+		game_over_layer.queue_free()
+
+	game_over_layer = null
+	game_over_screen = null
+
+
 func _on_retry_pressed() -> void:
+	# Remove the Game Over screen.
+	_close_game_over_screen()
+
 	# Unpause before changing scenes.
 	get_tree().paused = false
 
@@ -323,11 +343,14 @@ func _on_retry_pressed() -> void:
 
 
 func _on_title_pressed() -> void:
-	# Unpause before changing scenes.
+	# Remove the Game Over screen first.
+	_close_game_over_screen()
+
+	# Unpause the game.
 	get_tree().paused = false
 
-	# Return to the title screen.
-	get_tree().change_scene_to_packed(TITLE_SCENE)
+	# Load the title screen.
+	get_tree().change_scene_to_file("res://scenes/ui/title_screen.tscn")
 
 
 func _on_print_timer_timeout() -> void:
