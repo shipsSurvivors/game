@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+SFX="*res://scenes/audio/sfx.tscn"
 MusicPlayer="*uid://c88l5c46n8g3a"
 
 [display]

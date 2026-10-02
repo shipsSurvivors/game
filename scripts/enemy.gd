@@ -146,6 +146,8 @@ func take_damage(amount: int) -> void:
 
 	# Give visual feedback for a hit the enemy survives.
 	flash_on_hit()
+	# Only surviving hits play the damage sound.
+	SFX.play_sound("ShipHit")
 
 
 func die() -> void:
@@ -153,6 +155,7 @@ func die() -> void:
 	if is_queued_for_deletion():
 		return
 		
+	SFX.play_sound("ShipDeath")
 	died.emit(self)
 	print("AWESOME")
 	queue_free()
