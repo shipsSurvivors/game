@@ -37,7 +37,7 @@ theme_override_constants/separation = 20
 [node name="Title" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1102061792]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
-text = "SHIPS SURVIVORS"
+text = "Deadflow"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1190138354]

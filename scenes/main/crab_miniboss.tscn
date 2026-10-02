@@ -58,5 +58,3 @@ mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_jmf37")
 theme_override_styles/fill = SubResource("StyleBoxFlat_ly3rf")
 show_percentage = false
-
-[connection signal="input_event" from="." to="." method="_on_input_event"]

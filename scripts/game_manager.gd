@@ -4,9 +4,8 @@ const playerScene = preload("res://scenes/player/player.tscn")
 const enemyScene = preload("res://scenes/main/enemy.tscn")
 const shotScene = preload("res://scenes/player/cannonball.tscn")
 
-const GAME_SCENE := preload("res://scenes/player/gameplay.tscn")
-const TITLE_SCENE := preload("res://scenes/ui/title_screen.tscn")
 const GAME_OVER_SCENE := preload("res://scenes/ui/game_over_screen.tscn")
+const UPGRADE_SCENE := preload("res://scenes/ui/upgrade_screen.tscn")
 
 
 @export var player: CharacterBody2D
@@ -14,6 +13,13 @@ const GAME_OVER_SCENE := preload("res://scenes/ui/game_over_screen.tscn")
 @export var enemy2: CharacterBody2D
 
 var damage: int = 5
+
+# Attack speed is represented as a percentage multiplier.
+# 100 means the default attack speed. Each upgrade adds 10%.
+var attack_speed: int = 100
+
+const BASE_SHOT_INTERVAL: float = 1.5
+
 var listOfEnemies: Array[Node2D] = []
 var level: int = 1
 var xp: int = 0
@@ -33,6 +39,11 @@ var game_over: bool = false
 
 var game_over_screen: Control
 var game_over_layer: CanvasLayer
+
+var upgrade_screen: Control
+var upgrade_layer: CanvasLayer
+var shot_timer: Timer
+var pending_upgrades: int = 0
 
 
 @onready var xp_bar: ProgressBar = $HUD/XPDisplay/XPBar
@@ -74,14 +85,17 @@ func _ready() -> void:
 
 	# Connect player death.
 	if is_instance_valid(player):
+		player.process_mode = Node.PROCESS_MODE_PAUSABLE
 		player.player_died.connect(_on_player_died)
 
 	# Add the two enemies that already exist in the scene.
 	if is_instance_valid(enemy):
+		enemy.process_mode = Node.PROCESS_MODE_PAUSABLE
 		listOfEnemies.append(enemy)
 		enemy.died.connect(_on_enemy_died)
 
 	if is_instance_valid(enemy2):
+		enemy2.process_mode = Node.PROCESS_MODE_PAUSABLE
 		listOfEnemies.append(enemy2)
 		enemy2.died.connect(_on_enemy_died)
 
@@ -92,7 +106,8 @@ func _ready() -> void:
 	add_child(print_timer)
 
 	# Timer used for automatically firing shots.
-	var shot_timer = Timer.new()
+	shot_timer = Timer.new()
+	shot_timer.process_mode = Node.PROCESS_MODE_PAUSABLE
 	shot_timer.wait_time = 1.5
 	shot_timer.autostart = true
 	add_child(shot_timer)
@@ -104,8 +119,8 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Do not pause or resume during Game Over.
-	if game_over:
+	# Required upgrade choices and Game Over cannot be dismissed with Escape.
+	if game_over or pending_upgrades > 0 or is_instance_valid(upgrade_screen):
 		return
 
 	# Press Escape to pause or resume.
@@ -164,6 +179,7 @@ func spawn_enemy() -> void:
 
 	if not is_instance_valid(player):
 		print("ERROR: Player is not valid, cannot spawn enemy.")
+		instantiateEnemy.free()
 		return
 
 	# Pick a random angle around the player.
@@ -182,6 +198,7 @@ func spawn_enemy() -> void:
 	instantiateEnemy.global_position = player.global_position + spawn_offset
 
 	# Add the enemy to the actual game scene.
+	instantiateEnemy.process_mode = Node.PROCESS_MODE_PAUSABLE
 	get_tree().current_scene.add_child(instantiateEnemy)
 
 	# Add the enemy to our enemy list.
@@ -213,6 +230,7 @@ func _on_shot_timer_timeout() -> void:
 
 	var shot = shotScene.instantiate()
 	shot.damage = damage
+	shot.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(shot)
 
 	shot.global_position = player.global_position
@@ -220,6 +238,8 @@ func _on_shot_timer_timeout() -> void:
 
 
 func add_xp(amount: int) -> void:
+	if game_over:
+		return
 	xp += amount
 
 	# Keep any extra XP when leveling up.
@@ -232,7 +252,85 @@ func add_xp(amount: int) -> void:
 		# Each new level takes two more enemy defeats.
 		xp_needed += 2
 
+		# Boss rewards can earn several levels. Queue every choice.
+		pending_upgrades += 1
+
 	update_xp_display()
+	if pending_upgrades > 0:
+		# Enemy deaths can originate in a physics callback.
+		# Add the upgrade controls after that callback has finished.
+		call_deferred("_show_upgrade_screen")
+
+
+func _show_upgrade_screen() -> void:
+	if game_over or pending_upgrades <= 0:
+		return
+	# Do not create another upgrade screen if one is already open.
+	if is_instance_valid(upgrade_screen):
+		return
+
+	_set_game_paused(true)
+
+	upgrade_layer = CanvasLayer.new()
+	upgrade_layer.name = "UpgradeLayer"
+	upgrade_layer.layer = 90
+	upgrade_layer.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	get_tree().current_scene.add_child(upgrade_layer)
+
+	upgrade_screen = UPGRADE_SCENE.instantiate() as Control
+	upgrade_screen.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	upgrade_layer.add_child(upgrade_screen)
+	upgrade_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	# Connect the signals emitted by upgrade_screen.gd.
+	upgrade_screen.damage_pressed.connect(_on_damage_pressed)
+	upgrade_screen.movementspeed_pressed.connect(_on_movementspeed_pressed)
+	upgrade_screen.attackspeed_pressed.connect(_on_attackspeed_pressed)
+
+
+func _close_upgrade_screen() -> void:
+	if is_instance_valid(upgrade_layer):
+		upgrade_layer.queue_free()
+
+	upgrade_layer = null
+	upgrade_screen = null
+
+
+func _on_damage_pressed() -> void:
+	damage += 5
+	print("Damage upgraded to ", damage)
+	_finish_upgrade()
+
+
+func _on_movementspeed_pressed() -> void:
+	if is_instance_valid(player):
+		player.speed += 50.0
+		print("Movement speed upgraded to ", player.speed)
+
+	_finish_upgrade()
+
+
+func _on_attackspeed_pressed() -> void:
+	attack_speed += 100
+
+	if is_instance_valid(shot_timer):
+		shot_timer.wait_time = _get_shot_interval()
+
+	print("Attack speed upgraded to ", attack_speed, "%")
+	_finish_upgrade()
+
+
+func _get_shot_interval() -> float:
+	return BASE_SHOT_INTERVAL / (float(attack_speed) / 100.0)
+
+
+func _finish_upgrade() -> void:
+	_close_upgrade_screen()
+	pending_upgrades = maxi(0, pending_upgrades - 1)
+	if pending_upgrades > 0:
+		_show_upgrade_screen()
+	else:
+		_set_game_paused(false)
 
 
 func update_xp_display() -> void:
@@ -274,6 +372,7 @@ func spawn_miniboss(scene: PackedScene, boss_name: String) -> void:
 
 	var boss = scene.instantiate()
 	boss.name = boss_name
+	boss.process_mode = Node.PROCESS_MODE_PAUSABLE
 	# Allows the spawner to distinguish bosses from regular ships.
 	boss.add_to_group("minibosses")
 
@@ -425,7 +524,7 @@ func _on_retry_pressed() -> void:
 	_set_game_paused(false)
 
 	# Reload the gameplay scene.
-	get_tree().change_scene_to_packed(GAME_SCENE)
+	get_tree().change_scene_to_file("res://scenes/player/gameplay.tscn")
 
 
 func _on_title_pressed() -> void:

@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://dteidlbnklk1t"]
 
-[ext_resource type="Texture2D" uid="uid://bf8gsske4woxc" path="res://icon.svg" id="1_ndefc"]
 [ext_resource type="Script" uid="uid://bbxgmmfrakoia" path="res://scenes/player/cannonball.gd" id="1_w80je"]
+[ext_resource type="Texture2D" uid="uid://b2s8dt20lc7h3" path="res://sprites/cannonball.png" id="2_w80je"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_sidxc"]
-radius = 30.149628
+radius = 16.03122
 
 [node name="Cannonball" type="Area2D" unique_id=888437430]
 collision_layer = 2
@@ -16,7 +16,7 @@ damage = 0
 shape = SubResource("CircleShape2D_sidxc")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=795764633]
-scale = Vector2(0.40886465, 0.4366773)
-texture = ExtResource("1_ndefc")
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("2_w80je")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
