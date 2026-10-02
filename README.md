@@ -1,4 +1,4 @@
-# 🚢 shipsSurvivors
+# 🚢 Deadflow
 
 A top-down survivorslike developed in **Godot** by Aztec Game Lab – Team 8 for Game Jam 2026.
 
