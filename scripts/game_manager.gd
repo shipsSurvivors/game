@@ -4,29 +4,42 @@ const playerScene = preload("res://scenes/player/player.tscn")
 const enemyScene = preload("res://scenes/main/enemy.tscn")
 const shotScene = preload("res://scenes/player/cannonball.tscn")
 
+# Scenes used for Game Over and returning to the title screen.
+const GAME_SCENE := preload("res://scenes/player/gameplay.tscn")
+const TITLE_SCENE := preload("res://scenes/ui/title_screen.tscn")
+const GAME_OVER_SCENE := preload("res://scenes/ui/game_over_screen.tscn")
+
+
 @export var player: CharacterBody2D
 @export var enemy: CharacterBody2D
 @export var enemy2: CharacterBody2D
 
-# Crab with 20 health dies in 4 hits
+# Crab with 20 health dies in 4 hits.
 var damage: int = 5
 
 var listOfEnemies: Array[Node2D] = []
 
-# Level and XP
+# Level and XP.
 var level: int = 1
 var xp: int = 0
 var xp_needed: int = 2
 
-# Time before a killed enemy respawns
+# Time before a killed enemy respawns.
 @export var enemy_respawn_time: float = 3.0
 
-# Enemy spawn settings
+# Enemy spawn settings.
 # Enemies will spawn somewhere within this radius around the player.
 @export var enemy_spawn_radius: float = 500.0
 
 # Enemies will not spawn closer than this distance to the player.
 @export var enemy_min_spawn_distance: float = 150.0
+
+# Keeps track of whether the player has died.
+var game_over: bool = false
+
+# References to the Game Over UI.
+var game_over_screen: Control
+var game_over_layer: CanvasLayer
 
 
 # References to the fixed-screen HUD.
@@ -118,26 +131,21 @@ func spawn_enemy() -> void:
 		print("ERROR: Player is not valid, cannot spawn enemy.")
 		return
 
-	# ---------------------------------------------------------
-	# RANDOM SPAWN AROUND PLAYER
-	# ---------------------------------------------------------
-	
 	# Pick a random angle around the player.
 	var angle := randf_range(0.0, TAU)
-	
+
 	# Pick a random distance between the minimum
 	# and maximum spawn radius.
 	var distance := randf_range(
 		enemy_min_spawn_distance,
 		enemy_spawn_radius
 	)
-	
+
 	# Convert the angle and distance into a Vector2.
 	var spawn_offset := Vector2.from_angle(angle) * distance
-	
+
 	# Spawn relative to the player's current position.
 	instantiateEnemy.global_position = player.global_position + spawn_offset
-
 
 	# Add the enemy to the actual game scene.
 	get_tree().current_scene.add_child(instantiateEnemy)
@@ -159,6 +167,10 @@ func spawn_enemy() -> void:
 func _ready() -> void:
 	# Randomize positions used by randf_range().
 	randomize()
+
+	# Connect player death.
+	if is_instance_valid(player):
+		player.player_died.connect(_on_player_died)
 
 	# Add the two enemies that already exist in the scene.
 	if is_instance_valid(enemy):
@@ -192,6 +204,10 @@ func _ready() -> void:
 
 
 func _on_shot_timer_timeout() -> void:
+	# Don't fire after Game Over.
+	if game_over:
+		return
+
 	if not is_instance_valid(player):
 		return
 
@@ -246,6 +262,10 @@ func update_xp_display() -> void:
 
 
 func _on_enemy_died(dead_enemy: Node2D) -> void:
+	# Don't process enemy deaths after Game Over.
+	if game_over:
+		return
+
 	# Only reward an enemy that is still registered.
 	if not listOfEnemies.has(dead_enemy):
 		return
@@ -258,11 +278,85 @@ func _on_enemy_died(dead_enemy: Node2D) -> void:
 	# Wait before spawning the replacement enemy.
 	await get_tree().create_timer(enemy_respawn_time).timeout
 
+	# Don't respawn enemies after Game Over.
+	if game_over:
+		return
+
 	# Spawn the replacement.
 	spawn_enemy()
 
 
+func _on_player_died() -> void:
+	# Prevent Game Over from triggering multiple times.
+	if game_over:
+		return
+
+	game_over = true
+
+	print("GAME OVER")
+
+	# Stop all gameplay.
+	get_tree().paused = true
+
+	# Create a UI layer above the gameplay.
+	game_over_layer = CanvasLayer.new()
+	game_over_layer.name = "GameOverLayer"
+	game_over_layer.layer = 100
+	game_over_layer.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	get_tree().current_scene.add_child(game_over_layer)
+
+	# Create the Game Over screen.
+	game_over_screen = GAME_OVER_SCENE.instantiate() as Control
+	game_over_screen.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	game_over_layer.add_child(game_over_screen)
+
+	# Make the Game Over screen fill the viewport.
+	game_over_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	# Make the CenterContainer fill the viewport.
+	var center_container := game_over_screen.get_node("CenterContainer") as Control
+	center_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	# Connect the Game Over buttons.
+	game_over_screen.retry_pressed.connect(_on_retry_pressed)
+	game_over_screen.title_pressed.connect(_on_title_pressed)
+
+
+func _close_game_over_screen() -> void:
+	# Remove the Game Over UI layer.
+	if is_instance_valid(game_over_layer):
+		game_over_layer.queue_free()
+
+	game_over_layer = null
+	game_over_screen = null
+
+
+func _on_retry_pressed() -> void:
+	# Remove the Game Over screen.
+	_close_game_over_screen()
+
+	# Unpause before changing scenes.
+	get_tree().paused = false
+
+	# Reload the gameplay scene.
+	get_tree().change_scene_to_packed(GAME_SCENE)
+
+
+func _on_title_pressed() -> void:
+	# Remove the Game Over screen first.
+	_close_game_over_screen()
+
+	# Unpause the game.
+	get_tree().paused = false
+
+	# Load the title screen.
+	get_tree().change_scene_to_file("res://scenes/ui/title_screen.tscn")
+
+
 func _on_print_timer_timeout() -> void:
+	if game_over:
+		return
+
 	var closest = find_closest_enemy()
 
 	if closest:
