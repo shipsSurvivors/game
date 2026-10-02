@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://cayxk6diwr63k" path="res://scripts/ocean_background.gd" id="3_d2sv5"]
 [ext_resource type="Texture2D" uid="uid://d2dn2we5iyjrw" path="res://sprites/ocean_tile.png" id="4_sdyvb"]
 [ext_resource type="Texture2D" uid="uid://c74fdeprqeubo" path="res://sprites/lvl_1_bar.png" id="6_d2sv5"]
+[ext_resource type="Script" uid="uid://duas0tnlqoam2" path="res://scripts/survival_clock.gd" id="7_wtmd0"]
+[ext_resource type="Script" uid="uid://irlet8klfff8" path="res://scenes/player/level_number.gd" id="8_dokoc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6cmtr"]
 bg_color = Color(0.18212852, 0.26263383, 0.65469795, 1)
@@ -78,12 +80,22 @@ offset_transform_position_ratio = Vector2(96, 78)
 theme_override_font_sizes/font_size = 18
 text = "Level 1 • XP 0 / 2"
 
+[node name="LevelNumber" type="HBoxContainer" parent="HUD/XPDisplay" unique_id=916574003]
+layout_mode = 0
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 28.0
+offset_bottom = 2.0
+script = ExtResource("8_dokoc")
+
 [node name="SurvivalTimer" type="Label" parent="HUD" unique_id=1544791114]
+visible = false
 offset_right = 600.0
 offset_bottom = 39.0
 theme_override_font_sizes/font_size = 28
 text = "00:00"
 
+<<<<<<< Updated upstream
 [node name="UpgradeMenu" type="CanvasLayer" parent="." unique_id=468270434]
 
 [node name="Overlay" type="Control" parent="UpgradeMenu" unique_id=1688025052]
@@ -119,3 +131,15 @@ layout_mode = 2
 
 [node name="Choice3" type="Button" parent="UpgradeMenu/Overlay/CenterContainer/VBoxContainer" unique_id=2040856634]
 layout_mode = 2
+=======
+[node name="SurvivalClock" type="HBoxContainer" parent="HUD" unique_id=750612432]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -730.0
+offset_top = 20.0
+offset_right = -550.0
+offset_bottom = 64.0
+grow_horizontal = 2
+script = ExtResource("7_wtmd0")
+>>>>>>> Stashed changes

@@ -2,10 +2,10 @@ extends CharacterBody2D
 
 signal died(enemy)
 
-@export var speed = 120
+@export var speed = 235
 
-var max_hp = 20
-var hp = 20
+var max_hp = 150
+var hp = 150
 var player: Node2D
 
 # ---------------------------------------------------------
@@ -13,10 +13,10 @@ var player: Node2D
 # ---------------------------------------------------------
 
 # How much damage this enemy does to the player.
-@export var damage: int = 10
+@export var damage: int = 18
 
 # How often the enemy can damage the player.
-@export var damage_cooldown: float = 1.0
+@export var damage_cooldown: float = 0.8
 
 # Keeps track of the damage cooldown.
 var damage_timer: float = 0.0
@@ -42,8 +42,8 @@ func _ready() -> void:
 	health_bar.max_value = max_hp
 	health_bar.value = hp
 	
-	# Keep the bar hidden until this enemy takes damage.
-	health_bar.hide()
+	# Keep the miniboss health visible.
+	health_bar.show()
 
 	# Loop the crab's animation.
 	sprite.play("scuttle")
@@ -156,6 +156,7 @@ func take_damage(amount: int) -> void:
 		return
 
 	# Give visual feedback for a hit the enemy survives.
+	SFX.play_sound("AnimalHit")
 	flash_on_hit()
 
 
@@ -164,6 +165,8 @@ func die() -> void:
 	if is_queued_for_deletion():
 		return
 		
+
+	SFX.play_sound("AnimalDeath")
 	died.emit(self)
 	print("AWESOME")
 	queue_free()

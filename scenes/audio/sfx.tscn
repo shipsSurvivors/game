@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://djs6ate8ibrhp"]
+
+[ext_resource type="Script" uid="uid://q6pw3r6rjo3t" path="res://scenes/audio/sfx.gd" id="1_egp2l"]
+[ext_resource type="AudioStream" uid="uid://ij561pgxckh" path="res://audio/sfx/Player_Shoot.wav" id="1_kmwtc"]
+[ext_resource type="AudioStream" uid="uid://bh0d4utkounyg" path="res://audio/sfx/Player_Death.wav" id="2_egp2l"]
+[ext_resource type="AudioStream" uid="uid://vssfkltp6766" path="res://audio/sfx/EnemyAnimal_Damaged.wav" id="3_651kl"]
+[ext_resource type="AudioStream" uid="uid://d1ns75cl5jpy8" path="res://audio/sfx/EnemyAnimal_Dead.wav" id="4_s22kh"]
+[ext_resource type="AudioStream" uid="uid://bjtm2uivi03i5" path="res://audio/sfx/EnemyShip_Damaged.wav" id="5_3f6dw"]
+[ext_resource type="AudioStream" uid="uid://bb5jcfpw5x2wd" path="res://audio/sfx/EnemyShip_Dead.wav" id="6_35llp"]
+[ext_resource type="AudioStream" uid="uid://c402bgiiu5l4e" path="res://audio/sfx/Upgrade_Select.wav" id="7_smer3"]
+
+[node name="SFX" type="Node" unique_id=1581663562]
+process_mode = 3
+script = ExtResource("1_egp2l")
+
+[node name="Shoot" type="AudioStreamPlayer" parent="." unique_id=1682173617]
+stream = ExtResource("1_kmwtc")
+volume_db = -20.0
+max_polyphony = 4
+
+[node name="PlayerDeath" type="AudioStreamPlayer" parent="." unique_id=427830052]
+stream = ExtResource("2_egp2l")
+volume_db = -20.0
+max_polyphony = 4
+
+[node name="AnimalHit" type="AudioStreamPlayer" parent="." unique_id=1604132823]
+stream = ExtResource("3_651kl")
+volume_db = -20.0
+max_polyphony = 4
+
+[node name="AnimalDeath" type="AudioStreamPlayer" parent="." unique_id=820397751]
+stream = ExtResource("4_s22kh")
+volume_db = -20.0
+max_polyphony = 4
+
+[node name="ShipHit" type="AudioStreamPlayer" parent="." unique_id=1160677036]
+stream = ExtResource("5_3f6dw")
+volume_db = -20.0
+max_polyphony = 4
+
+[node name="ShipDeath" type="AudioStreamPlayer" parent="." unique_id=2046419466]
+stream = ExtResource("6_35llp")
+volume_db = -20.0
+max_polyphony = 4
+
+[node name="Upgrade" type="AudioStreamPlayer" parent="." unique_id=1487687387]
+stream = ExtResource("7_smer3")
+volume_db = -20.0
+max_polyphony = 4

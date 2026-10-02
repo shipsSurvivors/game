@@ -3,9 +3,14 @@ extends Node2D
 const playerScene = preload("res://scenes/player/player.tscn")
 const enemyScene = preload("res://scenes/main/enemy.tscn")
 const shotScene = preload("res://scenes/player/cannonball.tscn")
+<<<<<<< Updated upstream
 
 const GAME_SCENE := preload("res://scenes/player/gameplay.tscn")
 const TITLE_SCENE := preload("res://scenes/ui/title_screen.tscn")
+=======
+# Blank level-bar artwork used at every level.
+const LEVEL_FRAME = preload("res://sprites/lvl_bar_blank.png")
+>>>>>>> Stashed changes
 const GAME_OVER_SCENE := preload("res://scenes/ui/game_over_screen.tscn")
 const UPGRADE_SCENE := preload("res://scenes/ui/upgrade_screen.tscn")
 const PAUSE_SCENE := preload("res://scenes/ui/pause_screen.tscn")
@@ -31,8 +36,8 @@ var xp_needed: int = 2
 # Seconds spent actively playing this voyage.
 var survival_time: float = 0.0
 
-# Finds the timer label inside the HUD.
-@onready var survival_timer: Label = $HUD/SurvivalTimer
+# The centered clock draws time using the artist's digit images.
+@onready var survival_clock = $HUD/SurvivalClock
 
 @export var enemy_respawn_time: float = 3.0
 @export var enemy_spawn_radius: float = 500.0
@@ -55,7 +60,31 @@ var shot_timer: Timer
 @onready var xp_bar: ProgressBar = $HUD/XPDisplay/XPBar
 @onready var xp_frame: TextureRect = $HUD/XPDisplay/Frame
 @onready var xp_text: Label = $HUD/XPDisplay/XPText
+@onready var level_number = $HUD/XPDisplay/LevelNumber
 
+<<<<<<< Updated upstream
+=======
+# Special enemies introduced during the voyage.
+const CRAB_BOSS_SCENE = preload(
+	"res://scenes/main/crab_miniboss.tscn"
+)
+const SEAGULL_BOSS_SCENE = preload(
+	"res://scenes/main/seagull_miniboss.tscn"
+)
+
+# Regular ships spawn independently of player level.
+var enemy_spawn_clock: float = 4.0
+
+@export var max_regular_enemies: int = 60
+
+# First arrival times.
+var next_crab_time: float = 45.0
+var next_seagull_time: float = 90.0
+
+# Repeat intervals shrink after each arrival.
+var crab_spawn_interval: float = 45.0
+var seagull_spawn_interval: float = 60.0
+>>>>>>> Stashed changes
 
 const LEVEL_FRAMES = [
 	preload("res://sprites/lvl_1_bar.png"),
@@ -99,6 +128,15 @@ func _ready() -> void:
 
 	shot_timer.timeout.connect(_on_shot_timer_timeout)
 	print_timer.timeout.connect(_on_print_timer_timeout)
+
+	# Position the level number beside the artwork's "Lvl" lettering.
+	level_number.position = Vector2(48, 22)
+
+	# Reset the accidental position-ratio setting.
+	xp_text.offset_transform_position_ratio = Vector2.ZERO
+
+	# Place the XP count underneath the bar.
+	xp_text.position = Vector2(96, 78)
 
 	update_xp_display()
 
@@ -305,6 +343,8 @@ func _on_shot_timer_timeout() -> void:
 
 	shot.global_position = player.global_position
 	shot.look_at(target.global_position)
+	# Play only when a cannonball actually fires.
+	SFX.play_sound("Shoot")
 
 
 func add_xp(amount: int) -> void:
@@ -395,24 +435,26 @@ func _get_shot_interval() -> float:
 
 
 func _finish_upgrade() -> void:
+	# All upgrade choices share the same confirmation sound.
+	SFX.play_sound("Upgrade")
 	_close_upgrade_screen()
 	_set_game_paused(false)
 
 
 func update_xp_display() -> void:
+	# Fill the bar according to progress toward the next level.
 	xp_bar.max_value = xp_needed
 	xp_bar.value = xp
 
-	xp_text.text = "Level %d • XP %d / %d" % [
-		level, xp, xp_needed
-	]
+	# Keep the artist's blank frame visible at every level.
+	xp_frame.texture = LEVEL_FRAME
+	xp_frame.show()
 
-	# Use the matching numbered artwork while available.
-	if level <= LEVEL_FRAMES.size():
-		xp_frame.texture = LEVEL_FRAMES[level - 1]
-		xp_frame.show()
-	else:
-		xp_frame.hide()
+	# Display the current level using the artist's numbers.
+	level_number.set_number(level)
+
+	# Keep a separate readable XP count.
+	xp_text.text = "XP %d / %d" % [xp, xp_needed]
 
 
 func _on_enemy_died(dead_enemy: Node2D) -> void:
@@ -444,13 +486,61 @@ func _process(delta: float) -> void:
 
 	survival_time += delta
 
+<<<<<<< Updated upstream
 	# Convert total seconds into minutes and remaining seconds.
 	var total_seconds := int(survival_time)
 	var minutes := int(total_seconds / 60.0)
 	var seconds := total_seconds % 60
+=======
+	if enemy_spawn_clock <= 0.0:
+		# Start at 1.5 seconds between ships.
+		# Spawn rate increases continuously with survival time.
+		# Give the player breathing room early.
+		# Pressure increases more strongly later, without a fixed minimum.
+		var difficulty := survival_time / 90.0
+		var spawn_interval := 4.0 / (
+			1.0 + difficulty * difficulty
+		)
 
-	# Pad both numbers with a zero: 00:09, 01:25, etc.
-	survival_timer.text = "%02d:%02d" % [minutes, seconds]
+		enemy_spawn_clock = spawn_interval
+
+		# Count regular ships separately from minibosses.
+		var regular_count := 0
+
+		for enemy_node in listOfEnemies:
+			if is_instance_valid(enemy_node):
+				if not enemy_node.is_in_group("minibosses"):
+					regular_count += 1
+
+		# Allow ten more living ships per minute.
+		var current_enemy_limit := (
+			max_regular_enemies + int(survival_time / 6.0)
+		)
+
+		if regular_count < current_enemy_limit:
+			spawn_enemy()
+
+	# Repeated crab arrivals, with progressively shorter gaps.
+	if survival_time >= next_crab_time:
+		spawn_miniboss(CRAB_BOSS_SCENE, "CrabMiniboss")
+
+		next_crab_time = survival_time + crab_spawn_interval
+		crab_spawn_interval = maxf(
+			25.0, crab_spawn_interval - 5.0
+		)
+
+	# Seagulls start later and repeat less frequently.
+	if survival_time >= next_seagull_time:
+		spawn_miniboss(SEAGULL_BOSS_SCENE, "SeagullMiniboss")
+
+		next_seagull_time = survival_time + seagull_spawn_interval
+		seagull_spawn_interval = maxf(
+			35.0, seagull_spawn_interval - 5.0
+		)
+>>>>>>> Stashed changes
+
+	# Update the artwork clock.
+	survival_clock.set_time(survival_time)
 
 func _on_player_died() -> void:
 	# Prevent Game Over from triggering multiple times.
@@ -458,6 +548,7 @@ func _on_player_died() -> void:
 		return
 
 	game_over = true
+	SFX.play_sound("PlayerDeath")
 
 	print("GAME OVER")
 
