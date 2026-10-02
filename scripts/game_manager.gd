@@ -7,6 +7,7 @@ const shotScene = preload("res://scenes/player/cannonball.tscn")
 const GAME_SCENE := preload("res://scenes/player/gameplay.tscn")
 const TITLE_SCENE := preload("res://scenes/ui/title_screen.tscn")
 const GAME_OVER_SCENE := preload("res://scenes/ui/game_over_screen.tscn")
+const UPGRADE_SCENE := preload("res://scenes/ui/upgrade_screen.tscn")
 
 
 @export var player: CharacterBody2D
@@ -14,6 +15,13 @@ const GAME_OVER_SCENE := preload("res://scenes/ui/game_over_screen.tscn")
 @export var enemy2: CharacterBody2D
 
 var damage: int = 5
+
+# Attack speed is represented as a percentage multiplier.
+# 100 means the default attack speed. Each upgrade adds 10%.
+var attack_speed: int = 100
+
+const BASE_SHOT_INTERVAL: float = 1.5
+
 var listOfEnemies: Array[Node2D] = []
 var level: int = 1
 var xp: int = 0
@@ -33,6 +41,10 @@ var game_over: bool = false
 
 var game_over_screen: Control
 var game_over_layer: CanvasLayer
+
+var upgrade_screen: Control
+var upgrade_layer: CanvasLayer
+var shot_timer: Timer
 
 
 @onready var xp_bar: ProgressBar = $HUD/XPDisplay/XPBar
@@ -75,7 +87,7 @@ func _ready() -> void:
 	add_child(print_timer)
 
 	# Timer used for automatically firing shots.
-	var shot_timer = Timer.new()
+	shot_timer = Timer.new()
 	shot_timer.wait_time = 1.5
 	shot_timer.autostart = true
 	add_child(shot_timer)
@@ -253,7 +265,80 @@ func add_xp(amount: int) -> void:
 		# Each new level takes two more enemy defeats.
 		xp_needed += 2
 
+		# Pause the game and show the upgrade choices.
+		_show_upgrade_screen()
+
+		# One upgrade screen is shown for each level increase.
+		# A normal enemy defeat can only increase the level once, but this
+		# prevents multiple screens from being created in one loop.
+		break
+
 	update_xp_display()
+
+
+func _show_upgrade_screen() -> void:
+	# Do not create another upgrade screen if one is already open.
+	if is_instance_valid(upgrade_screen):
+		return
+
+	_set_game_paused(true)
+
+	upgrade_layer = CanvasLayer.new()
+	upgrade_layer.name = "UpgradeLayer"
+	upgrade_layer.layer = 90
+	upgrade_layer.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	get_tree().current_scene.add_child(upgrade_layer)
+
+	upgrade_screen = UPGRADE_SCENE.instantiate() as Control
+	upgrade_screen.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	upgrade_layer.add_child(upgrade_screen)
+	upgrade_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	# Connect the signals emitted by upgrade_screen.gd.
+	upgrade_screen.damage_pressed.connect(_on_damage_pressed)
+	upgrade_screen.movementspeed_pressed.connect(_on_movementspeed_pressed)
+	upgrade_screen.attackspeed_pressed.connect(_on_attackspeed_pressed)
+
+
+func _close_upgrade_screen() -> void:
+	if is_instance_valid(upgrade_layer):
+		upgrade_layer.queue_free()
+
+	upgrade_layer = null
+	upgrade_screen = null
+
+
+func _on_damage_pressed() -> void:
+	damage += 5
+	print("Damage upgraded to ", damage)
+	_finish_upgrade()
+
+
+func _on_movementspeed_pressed() -> void:
+	if is_instance_valid(player):
+		player.speed += 50.0
+		print("Movement speed upgraded to ", player.speed)
+
+	_finish_upgrade()
+
+
+func _on_attackspeed_pressed() -> void:
+	attack_speed += 100
+
+	if is_instance_valid(shot_timer):
+		shot_timer.wait_time = _get_shot_interval()
+
+	print("Attack speed upgraded to ", attack_speed, "%")
+	_finish_upgrade()
+
+
+func _get_shot_interval() -> float:
+	return BASE_SHOT_INTERVAL / (float(attack_speed) / 100.0)
+
+
+func _finish_upgrade() -> void:
+	_close_upgrade_screen()
+	_set_game_paused(false)
 
 
 func update_xp_display() -> void:
