@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://cmfoxiva7r0km" path="res://scenes/main/enemy.tscn" id="3_6cmtr"]
 [ext_resource type="Script" uid="uid://cayxk6diwr63k" path="res://scripts/ocean_background.gd" id="3_d2sv5"]
 [ext_resource type="Texture2D" uid="uid://d2dn2we5iyjrw" path="res://sprites/ocean_tile.png" id="4_sdyvb"]
-[ext_resource type="Texture2D" uid="uid://c74fdeprqeubo" path="res://sprites/lvl_1_bar.png" id="6_d2sv5"]
+[ext_resource type="Texture2D" path="res://sprites/lvl_bar_blank.png" id="6_d2sv5"]
 [ext_resource type="Script" uid="uid://duas0tnlqoam2" path="res://scripts/survival_clock.gd" id="7_wtmd0"]
 [ext_resource type="Script" uid="uid://irlet8klfff8" path="res://scenes/player/level_number.gd" id="8_dokoc"]
 
@@ -76,7 +76,6 @@ offset_left = -20.0
 offset_top = -20.0
 offset_right = 20.0
 offset_bottom = 3.0
-offset_transform_position_ratio = Vector2(96, 78)
 theme_override_font_sizes/font_size = 18
 text = "Level 1 • XP 0 / 2"
 
@@ -95,51 +94,13 @@ offset_bottom = 39.0
 theme_override_font_sizes/font_size = 28
 text = "00:00"
 
-<<<<<<< Updated upstream
-[node name="UpgradeMenu" type="CanvasLayer" parent="." unique_id=468270434]
-
-[node name="Overlay" type="Control" parent="UpgradeMenu" unique_id=1688025052]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="DimBackground" type="ColorRect" parent="UpgradeMenu/Overlay" unique_id=1704547404]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="CenterContainer" type="CenterContainer" parent="UpgradeMenu/Overlay" unique_id=45590923]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="UpgradeMenu/Overlay/CenterContainer" unique_id=1305458243]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="UpgradeMenu/Overlay/CenterContainer/VBoxContainer" unique_id=808090531]
-layout_mode = 2
-
-[node name="Description" type="Label" parent="UpgradeMenu/Overlay/CenterContainer/VBoxContainer" unique_id=1407729731]
-layout_mode = 2
-
-[node name="Choice1" type="Button" parent="UpgradeMenu/Overlay/CenterContainer/VBoxContainer" unique_id=1765531644]
-layout_mode = 2
-
-[node name="Choice2" type="Button" parent="UpgradeMenu/Overlay/CenterContainer/VBoxContainer" unique_id=1578428230]
-layout_mode = 2
-
-[node name="Choice3" type="Button" parent="UpgradeMenu/Overlay/CenterContainer/VBoxContainer" unique_id=2040856634]
-layout_mode = 2
-=======
 [node name="SurvivalClock" type="HBoxContainer" parent="HUD" unique_id=750612432]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -730.0
+offset_left = -90.0
 offset_top = 20.0
-offset_right = -550.0
+offset_right = 90.0
 offset_bottom = 64.0
 grow_horizontal = 2
 script = ExtResource("7_wtmd0")
->>>>>>> Stashed changes
