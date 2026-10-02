@@ -1,0 +1,99 @@
+[gd_scene format=3 uid="uid://djplwp3u6yhnm"]
+
+[ext_resource type="Texture2D" uid="uid://ctq454oa53iu5" path="res://Sprites/upgrades.png" id="1_clnow"]
+[ext_resource type="Script" uid="uid://qoihy0525ef0" path="res://scenes/ui/upgrade_screen.gd" id="1_eg2gl"]
+
+[node name="UpgradeScreen" type="Control" unique_id=343594451]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_eg2gl")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=219298964]
+scale = Vector2(1.06, 1.06)
+texture = ExtResource("1_clnow")
+centered = false
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="Sprite2D" unique_id=133366448]
+custom_minimum_size = Vector2(200, 0)
+offset_left = 800.0
+offset_top = 238.679
+offset_right = 1105.0
+offset_bottom = 540.679
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="Sprite2D/VBoxContainer3" unique_id=1095420701]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Faster Attack"
+horizontal_alignment = 1
+
+[node name="Gain" type="Label" parent="Sprite2D/VBoxContainer3" unique_id=191432864]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "+ Attack Speed"
+horizontal_alignment = 1
+
+[node name="ButtonAttackSpeed" type="Button" parent="Sprite2D/VBoxContainer3" unique_id=685990677]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95686275, 0.79607844, 0.47058824, 1)
+theme_override_font_sizes/font_size = 24
+text = "Click"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="Sprite2D" unique_id=1112391301]
+custom_minimum_size = Vector2(200, 0)
+offset_left = 450.0
+offset_top = 238.679
+offset_right = 748.0
+offset_bottom = 540.679
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="Sprite2D/VBoxContainer2" unique_id=137225210]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Faster Speed"
+horizontal_alignment = 1
+
+[node name="Gain" type="Label" parent="Sprite2D/VBoxContainer2" unique_id=1117310298]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "+ Movement Speed"
+horizontal_alignment = 1
+
+[node name="ButtonSpeed" type="Button" parent="Sprite2D/VBoxContainer2" unique_id=1703737874]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95686275, 0.79607844, 0.47058824, 1)
+theme_override_font_sizes/font_size = 24
+text = "Click"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Sprite2D" unique_id=1731443448]
+custom_minimum_size = Vector2(200, 0)
+offset_left = 80.0
+offset_top = 238.679
+offset_right = 404.0
+offset_bottom = 540.679
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="Sprite2D/VBoxContainer" unique_id=1102061792]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Extra Damage"
+horizontal_alignment = 1
+
+[node name="Gain" type="Label" parent="Sprite2D/VBoxContainer" unique_id=1190138354]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "+ Damage"
+horizontal_alignment = 1
+
+[node name="ButtonDamage" type="Button" parent="Sprite2D/VBoxContainer" unique_id=1116287291]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95686275, 0.79607844, 0.47058824, 1)
+theme_override_font_sizes/font_size = 24
+text = "Click"
