@@ -8,6 +8,7 @@ const GAME_SCENE := preload("res://scenes/player/gameplay.tscn")
 const TITLE_SCENE := preload("res://scenes/ui/title_screen.tscn")
 const GAME_OVER_SCENE := preload("res://scenes/ui/game_over_screen.tscn")
 const UPGRADE_SCENE := preload("res://scenes/ui/upgrade_screen.tscn")
+const PAUSE_SCENE := preload("res://scenes/ui/pause_screen.tscn")
 
 
 @export var player: CharacterBody2D
@@ -44,6 +45,10 @@ var game_over_layer: CanvasLayer
 
 var upgrade_screen: Control
 var upgrade_layer: CanvasLayer
+
+var pause_screen: Control
+var pause_layer: CanvasLayer
+
 var shot_timer: Timer
 
 
@@ -105,7 +110,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	# Press Escape to pause or resume.
 	if event.is_action_pressed("ui_cancel"):
-		_set_game_paused(not get_tree().paused)
+		if get_tree().paused:
+			_close_pause_screen()
+			_set_game_paused(false)
+		else:
+			_set_game_paused(true)
+			_show_pause_screen()
+
 		get_viewport().set_input_as_handled()
 
 
@@ -123,6 +134,53 @@ func _set_game_paused(should_pause: bool) -> void:
 		if is_instance_valid(enemy_node):
 			enemy_node.set_process(not should_pause)
 			enemy_node.set_physics_process(not should_pause)
+
+
+func _show_pause_screen() -> void:
+	# Do not create another pause screen if one is already open.
+	if is_instance_valid(pause_screen):
+		return
+
+	pause_layer = CanvasLayer.new()
+	pause_layer.name = "PauseLayer"
+	pause_layer.layer = 90
+	pause_layer.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	get_tree().current_scene.add_child(pause_layer)
+
+	pause_screen = PAUSE_SCENE.instantiate() as Control
+	pause_screen.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	pause_layer.add_child(pause_screen)
+	pause_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	# Connect the signals emitted by pause_screen.gd.
+	pause_screen.resume_pressed.connect(_on_pause_resume_pressed)
+	pause_screen.restart_pressed.connect(_on_pause_restart_pressed)
+	pause_screen.title_pressed.connect(_on_pause_title_pressed)
+
+
+func _close_pause_screen() -> void:
+	if is_instance_valid(pause_layer):
+		pause_layer.queue_free()
+
+	pause_layer = null
+	pause_screen = null
+
+
+func _on_pause_resume_pressed() -> void:
+	_close_pause_screen()
+	_set_game_paused(false)
+
+
+func _on_pause_restart_pressed() -> void:
+	_close_pause_screen()
+	_set_game_paused(false)
+	get_tree().change_scene_to_packed(GAME_SCENE)
+
+
+func _on_pause_title_pressed() -> void:
+	_close_pause_screen()
+	_set_game_paused(false)
+	get_tree().change_scene_to_file("res://scenes/ui/title_screen.tscn")
 
 
 func find_closest_enemy() -> Node2D:
