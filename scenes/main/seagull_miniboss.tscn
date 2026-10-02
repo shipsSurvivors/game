@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://bq2ppexk7atc6"]
+
+[ext_resource type="Script" uid="uid://bjbv7n7uc8eic" path="res://scripts/seagull_miniboss.gd" id="1_ind77"]
+[ext_resource type="Texture2D" uid="uid://bjs8rkq7g4bkt" path="res://sprites/seagull/seagull_01.png" id="2_ind77"]
+[ext_resource type="Texture2D" uid="uid://ybv7npesj8ya" path="res://sprites/seagull/seagull_02.png" id="3_gp2sa"]
+[ext_resource type="Texture2D" uid="uid://dx6vxhe0oe6iw" path="res://sprites/seagull/seagull_03.png" id="4_d8fn1"]
+[ext_resource type="Texture2D" uid="uid://csdbbro3m3gdd" path="res://sprites/seagull/seagull_04.png" id="5_3kyo1"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jmf37"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_ind77")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_gp2sa")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_d8fn1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_3kyo1")
+}],
+"loop": 1,
+"name": &"flap",
+"speed": 8.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sidxc"]
+size = Vector2(18, 12.714285)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jmf37"]
+bg_color = Color(1, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ly3rf"]
+bg_color = Color(0, 1, 0, 1)
+
+[node name="Enemy" type="CharacterBody2D" unique_id=801274681]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_ind77")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1926919551]
+sprite_frames = SubResource("SpriteFrames_jmf37")
+animation = &"flap"
+frame_progress = 0.9380298
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2055581160]
+position = Vector2(6.000002, 48.499996)
+scale = Vector2(7, 7)
+shape = SubResource("RectangleShape2D_sidxc")
+
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=446926526]
+offset_left = -30.0
+offset_top = 60.0
+offset_right = 30.0
+offset_bottom = 68.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_jmf37")
+theme_override_styles/fill = SubResource("StyleBoxFlat_ly3rf")
+show_percentage = false
