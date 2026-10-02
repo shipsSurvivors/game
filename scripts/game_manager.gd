@@ -4,7 +4,6 @@ const playerScene = preload("res://scenes/player/player.tscn")
 const enemyScene = preload("res://scenes/main/enemy.tscn")
 const shotScene = preload("res://scenes/player/cannonball.tscn")
 
-# Scenes used for Game Over and returning to the title screen.
 const GAME_SCENE := preload("res://scenes/player/gameplay.tscn")
 const TITLE_SCENE := preload("res://scenes/ui/title_screen.tscn")
 const GAME_OVER_SCENE := preload("res://scenes/ui/game_over_screen.tscn")
@@ -14,46 +13,100 @@ const GAME_OVER_SCENE := preload("res://scenes/ui/game_over_screen.tscn")
 @export var enemy: CharacterBody2D
 @export var enemy2: CharacterBody2D
 
-# Crab with 20 health dies in 4 hits.
 var damage: int = 5
 
 var listOfEnemies: Array[Node2D] = []
 
-# Level and XP.
 var level: int = 1
 var xp: int = 0
 var xp_needed: int = 2
 
-# Time before a killed enemy respawns.
 @export var enemy_respawn_time: float = 3.0
-
-# Enemy spawn settings.
-# Enemies will spawn somewhere within this radius around the player.
 @export var enemy_spawn_radius: float = 500.0
-
-# Enemies will not spawn closer than this distance to the player.
 @export var enemy_min_spawn_distance: float = 150.0
 
-# Keeps track of whether the player has died.
 var game_over: bool = false
 
-# References to the Game Over UI.
 var game_over_screen: Control
 var game_over_layer: CanvasLayer
 
 
-# References to the fixed-screen HUD.
 @onready var xp_bar: ProgressBar = $HUD/XPDisplay/XPBar
 @onready var xp_frame: TextureRect = $HUD/XPDisplay/Frame
 @onready var xp_text: Label = $HUD/XPDisplay/XPText
 
 
-# Your artwork for the first three levels.
 const LEVEL_FRAMES = [
 	preload("res://sprites/lvl_1_bar.png"),
 	preload("res://sprites/lvl_2_bar.png"),
 	preload("res://sprites/lvl_3_bar.png")
 ]
+
+
+func _ready() -> void:
+	# Keep this script active so it can detect Escape while paused.
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
+	randomize()
+
+	# Connect player death.
+	if is_instance_valid(player):
+		player.player_died.connect(_on_player_died)
+
+	# Add the two enemies that already exist in the scene.
+	if is_instance_valid(enemy):
+		listOfEnemies.append(enemy)
+		enemy.died.connect(_on_enemy_died)
+
+	if is_instance_valid(enemy2):
+		listOfEnemies.append(enemy2)
+		enemy2.died.connect(_on_enemy_died)
+
+	scale_enemies_to_level()
+
+	# Timer used for printing enemy information.
+	var print_timer = Timer.new()
+	print_timer.wait_time = 1.0
+	print_timer.autostart = true
+	add_child(print_timer)
+
+	# Timer used for automatically firing shots.
+	var shot_timer = Timer.new()
+	shot_timer.wait_time = 1.5
+	shot_timer.autostart = true
+	add_child(shot_timer)
+
+	shot_timer.timeout.connect(_on_shot_timer_timeout)
+	print_timer.timeout.connect(_on_print_timer_timeout)
+
+	update_xp_display()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Do not pause or resume during Game Over.
+	if game_over:
+		return
+
+	# Press Escape to pause or resume.
+	if event.is_action_pressed("ui_cancel"):
+		_set_game_paused(not get_tree().paused)
+		get_viewport().set_input_as_handled()
+
+
+func _set_game_paused(should_pause: bool) -> void:
+	# Pause or resume the SceneTree.
+	get_tree().paused = should_pause
+
+	# Stop or resume the player.
+	if is_instance_valid(player):
+		player.set_process(not should_pause)
+		player.set_physics_process(not should_pause)
+
+	# Stop or resume every enemy.
+	for enemy_node in listOfEnemies:
+		if is_instance_valid(enemy_node):
+			enemy_node.set_process(not should_pause)
+			enemy_node.set_physics_process(not should_pause)
 
 
 func find_closest_enemy() -> Node2D:
@@ -82,18 +135,10 @@ func find_closest_enemy() -> Node2D:
 	return closest_enemy
 
 
-# Determines how many enemies should exist at each level.
-#
-# Level 1 = 2 enemies
-# Level 2 = 3 enemies
-# Level 3 = 4 enemies
-# Level 4 = 5 enemies
-# etc.
 func get_enemy_count_for_level() -> int:
 	return level + 1
 
 
-# Makes sure the correct number of enemies exist.
 func scale_enemies_to_level() -> void:
 	var target_enemy_count := get_enemy_count_for_level()
 
@@ -126,7 +171,6 @@ func spawn_enemy() -> void:
 		print("ERROR: Enemy scene could not be instantiated.")
 		return
 
-	# Make sure the player exists before using their position.
 	if not is_instance_valid(player):
 		print("ERROR: Player is not valid, cannot spawn enemy.")
 		return
@@ -134,8 +178,7 @@ func spawn_enemy() -> void:
 	# Pick a random angle around the player.
 	var angle := randf_range(0.0, TAU)
 
-	# Pick a random distance between the minimum
-	# and maximum spawn radius.
+	# Pick a random distance around the player.
 	var distance := randf_range(
 		enemy_min_spawn_distance,
 		enemy_spawn_radius
@@ -164,54 +207,14 @@ func spawn_enemy() -> void:
 	)
 
 
-func _ready() -> void:
-	# Randomize positions used by randf_range().
-	randomize()
-
-	# Connect player death.
-	if is_instance_valid(player):
-		player.player_died.connect(_on_player_died)
-
-	# Add the two enemies that already exist in the scene.
-	if is_instance_valid(enemy):
-		listOfEnemies.append(enemy)
-		enemy.died.connect(_on_enemy_died)
-
-	if is_instance_valid(enemy2):
-		listOfEnemies.append(enemy2)
-		enemy2.died.connect(_on_enemy_died)
-
-	# Make sure Level 1 has the correct number of enemies.
-	scale_enemies_to_level()
-
-	# Timer used for printing enemy information.
-	var print_timer = Timer.new()
-	print_timer.wait_time = 1.0
-	print_timer.autostart = true
-	add_child(print_timer)
-
-	# Timer used for automatically firing shots.
-	var shot_timer = Timer.new()
-	shot_timer.wait_time = 1.5
-	shot_timer.autostart = true
-	add_child(shot_timer)
-
-	shot_timer.timeout.connect(_on_shot_timer_timeout)
-	print_timer.timeout.connect(_on_print_timer_timeout)
-
-	# Show the starting level and empty XP bar.
-	update_xp_display()
-
-
 func _on_shot_timer_timeout() -> void:
-	# Don't fire after Game Over.
-	if game_over:
+	# Do not fire while paused or after Game Over.
+	if game_over or get_tree().paused:
 		return
 
 	if not is_instance_valid(player):
 		return
 
-	# Find a target once, then check it before firing.
 	var target := find_closest_enemy()
 
 	if not is_instance_valid(target):
@@ -257,16 +260,14 @@ func update_xp_display() -> void:
 		xp_frame.texture = LEVEL_FRAMES[level - 1]
 		xp_frame.show()
 	else:
-		# Beyond level 3, keep the working bar and text.
 		xp_frame.hide()
 
 
 func _on_enemy_died(dead_enemy: Node2D) -> void:
-	# Don't process enemy deaths after Game Over.
-	if game_over:
+	# Do not process enemy deaths while paused or after Game Over.
+	if game_over or get_tree().paused:
 		return
 
-	# Only reward an enemy that is still registered.
 	if not listOfEnemies.has(dead_enemy):
 		return
 
@@ -278,11 +279,10 @@ func _on_enemy_died(dead_enemy: Node2D) -> void:
 	# Wait before spawning the replacement enemy.
 	await get_tree().create_timer(enemy_respawn_time).timeout
 
-	# Don't respawn enemies after Game Over.
-	if game_over:
+	# Do not respawn enemies while paused or after Game Over.
+	if game_over or get_tree().paused:
 		return
 
-	# Spawn the replacement.
 	spawn_enemy()
 
 
@@ -295,8 +295,8 @@ func _on_player_died() -> void:
 
 	print("GAME OVER")
 
-	# Stop all gameplay.
-	get_tree().paused = true
+	# Stop the player, enemies, audio, and gameplay.
+	_set_game_paused(true)
 
 	# Create a UI layer above the gameplay.
 	game_over_layer = CanvasLayer.new()
@@ -336,25 +336,25 @@ func _on_retry_pressed() -> void:
 	_close_game_over_screen()
 
 	# Unpause before changing scenes.
-	get_tree().paused = false
+	_set_game_paused(false)
 
 	# Reload the gameplay scene.
 	get_tree().change_scene_to_packed(GAME_SCENE)
 
 
 func _on_title_pressed() -> void:
-	# Remove the Game Over screen first.
+	# Remove the Game Over screen.
 	_close_game_over_screen()
 
-	# Unpause the game.
-	get_tree().paused = false
+	# Unpause before changing scenes.
+	_set_game_paused(false)
 
-	# Load the title screen.
+	# Return to the title screen.
 	get_tree().change_scene_to_file("res://scenes/ui/title_screen.tscn")
 
 
 func _on_print_timer_timeout() -> void:
-	if game_over:
+	if game_over or get_tree().paused:
 		return
 
 	var closest = find_closest_enemy()
