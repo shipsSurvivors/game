@@ -23,7 +23,7 @@ enemy2 = NodePath("Enemy2")
 self_modulate = Color(0.25882354, 0.3764706, 0.47058824, 1)
 texture_filter = 1
 texture_repeat = 2
-scale = Vector2(2, 2)
+scale = Vector2(3, 3)
 texture = ExtResource("4_sdyvb")
 region_enabled = true
 region_rect = Rect2(0, 0, 8192, 8192)
@@ -77,3 +77,45 @@ offset_bottom = 3.0
 offset_transform_position_ratio = Vector2(96, 78)
 theme_override_font_sizes/font_size = 18
 text = "Level 1 • XP 0 / 2"
+
+[node name="SurvivalTimer" type="Label" parent="HUD" unique_id=1544791114]
+offset_right = 600.0
+offset_bottom = 39.0
+theme_override_font_sizes/font_size = 28
+text = "00:00"
+
+[node name="UpgradeMenu" type="CanvasLayer" parent="." unique_id=468270434]
+
+[node name="Overlay" type="Control" parent="UpgradeMenu" unique_id=1688025052]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="DimBackground" type="ColorRect" parent="UpgradeMenu/Overlay" unique_id=1704547404]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CenterContainer" type="CenterContainer" parent="UpgradeMenu/Overlay" unique_id=45590923]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UpgradeMenu/Overlay/CenterContainer" unique_id=1305458243]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UpgradeMenu/Overlay/CenterContainer/VBoxContainer" unique_id=808090531]
+layout_mode = 2
+
+[node name="Description" type="Label" parent="UpgradeMenu/Overlay/CenterContainer/VBoxContainer" unique_id=1407729731]
+layout_mode = 2
+
+[node name="Choice1" type="Button" parent="UpgradeMenu/Overlay/CenterContainer/VBoxContainer" unique_id=1765531644]
+layout_mode = 2
+
+[node name="Choice2" type="Button" parent="UpgradeMenu/Overlay/CenterContainer/VBoxContainer" unique_id=1578428230]
+layout_mode = 2
+
+[node name="Choice3" type="Button" parent="UpgradeMenu/Overlay/CenterContainer/VBoxContainer" unique_id=2040856634]
+layout_mode = 2

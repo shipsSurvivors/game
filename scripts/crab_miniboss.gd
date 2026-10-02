@@ -25,27 +25,39 @@ var damage_timer: float = 0.0
 # Find this enemy's own health bar.
 @onready var health_bar: ProgressBar = $HealthBar
 
-# The base enemy uses a static ship sprite.
-@onready var sprite: Sprite2D = $Visual
-
-# Remember its red tint so hit flashes restore the correct color.
-@onready var normal_tint: Color = sprite.self_modulate
+# Use the animated crab for movement visuals and hit flashes.
+@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var normal_tint: Color = $AnimatedSprite2D.self_modulate
 
 # Stores the current flash so repeated hits can restart it.
 var hit_tween: Tween
 
 
 func _ready() -> void:
-	# Start this ship at full health.
+	# Start each enemy at full health.
 	hp = max_hp
 
-	# Configure its health bar.
+	# Match the bar's range to this enemy's health.
 	health_bar.min_value = 0
 	health_bar.max_value = max_hp
 	health_bar.value = hp
-
-	# Show the bar only after taking damage.
+	
+	# Keep the bar hidden until this enemy takes damage.
 	health_bar.hide()
+
+	# Loop the crab's animation.
+	sprite.play("scuttle")
+
+	# Start each crab at a different point in the animation,
+	# so the whole group doesn't move in perfect sync.
+	sprite.set_frame_and_progress(
+		randi_range(
+			0,
+			sprite.sprite_frames.get_frame_count("scuttle") - 1
+		),
+		randf()
+	)
+
 
 func _physics_process(delta: float) -> void:
 	# Reduce the damage cooldown.
@@ -63,13 +75,12 @@ func _physics_process(delta: float) -> void:
 	# Move toward the player's current position.
 	var direction := global_position.direction_to(player.global_position)
 
-	# Turn only the ship visual toward the player.
-	# The health bar stays upright because the root does not rotate.
-	sprite.rotation = lerp_angle(
-		sprite.rotation,
-		direction.angle(),
-		minf(delta * 8.0, 1.0)
-	)
+	# The crab artwork naturally faces left.
+	# Flip it when the player is to the right.
+	if direction.x > 0.05:
+		sprite.flip_h = true
+	elif direction.x < -0.05:
+		sprite.flip_h = false
 
 	velocity = direction * speed
 	move_and_slide()

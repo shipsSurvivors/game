@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ybv7npesj8ya"
-path="res://.godot/imported/seagull_02.png-df92167b0c23d76e490e6fa5db471724.ctex"
+uid="uid://cbs8qxrqooe4e"
+path="res://.godot/imported/chest.png-5ac161732456c12f5fe1c547169e35bb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/seagull/seagull_02.png"
-dest_files=["res://.godot/imported/seagull_02.png-df92167b0c23d76e490e6fa5db471724.ctex"]
+source_file="res://sprites/chest.png"
+dest_files=["res://.godot/imported/chest.png-5ac161732456c12f5fe1c547169e35bb.ctex"]
 
 [params]
 

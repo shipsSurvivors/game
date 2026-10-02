@@ -14,12 +14,16 @@ const GAME_OVER_SCENE := preload("res://scenes/ui/game_over_screen.tscn")
 @export var enemy2: CharacterBody2D
 
 var damage: int = 5
-
 var listOfEnemies: Array[Node2D] = []
-
 var level: int = 1
 var xp: int = 0
 var xp_needed: int = 2
+
+# Seconds spent actively playing this voyage.
+var survival_time: float = 0.0
+
+# Finds the timer label inside the HUD.
+@onready var survival_timer: Label = $HUD/SurvivalTimer
 
 @export var enemy_respawn_time: float = 3.0
 @export var enemy_spawn_radius: float = 500.0
@@ -140,6 +144,11 @@ func get_enemy_count_for_level() -> int:
 
 
 func scale_enemies_to_level() -> void:
+	# Stop instead of repeatedly trying to spawn without a player.
+	if not is_instance_valid(player):
+		push_error("Assign Player on the Gameplay node in the Inspector.")
+		return
+		
 	var target_enemy_count := get_enemy_count_for_level()
 
 	# Clean out invalid references first.
@@ -285,6 +294,20 @@ func _on_enemy_died(dead_enemy: Node2D) -> void:
 
 	spawn_enemy()
 
+func _process(delta: float) -> void:
+	# This manager runs while paused, so explicitly stop the clock.
+	if game_over or get_tree().paused:
+		return
+
+	survival_time += delta
+
+	# Convert total seconds into minutes and remaining seconds.
+	var total_seconds := int(survival_time)
+	var minutes := int(total_seconds / 60.0)
+	var seconds := total_seconds % 60
+
+	# Pad both numbers with a zero: 00:09, 01:25, etc.
+	survival_timer.text = "%02d:%02d" % [minutes, seconds]
 
 func _on_player_died() -> void:
 	# Prevent Game Over from triggering multiple times.
@@ -363,3 +386,4 @@ func _on_print_timer_timeout() -> void:
 		print("Closest Enemy coordinates: ", closest.global_position)
 	else:
 		print("No active enemies found on screen.")
+		

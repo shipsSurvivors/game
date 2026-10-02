@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b20tjkpjh4fmi"
-path="res://.godot/imported/flintlock.png-7ca952df60f5d5dbdcaec89daa4151a4.ctex"
+path="res://.godot/imported/flintlock.png-1587a5918c2b9297f3cc574fd9b2c914.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Sprites/flintlock.png"
-dest_files=["res://.godot/imported/flintlock.png-7ca952df60f5d5dbdcaec89daa4151a4.ctex"]
+source_file="res://sprites/flintlock.png"
+dest_files=["res://.godot/imported/flintlock.png-1587a5918c2b9297f3cc574fd9b2c914.ctex"]
 
 [params]
 

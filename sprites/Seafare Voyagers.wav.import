@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://8cf2o4jby40g"
-path="res://.godot/imported/Seafare Voyagers.wav-14c620b0cecf6442ad7b2242eb0b5be9.sample"
+path="res://.godot/imported/Seafare Voyagers.wav-f0e9cd2ab300a901f870e1ee187d01d9.sample"
 
 [deps]
 
-source_file="res://Sprites/Seafare Voyagers.wav"
-dest_files=["res://.godot/imported/Seafare Voyagers.wav-14c620b0cecf6442ad7b2242eb0b5be9.sample"]
+source_file="res://sprites/Seafare Voyagers.wav"
+dest_files=["res://.godot/imported/Seafare Voyagers.wav-f0e9cd2ab300a901f870e1ee187d01d9.sample"]
 
 [params]
 
